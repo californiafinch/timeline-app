@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -11,7 +12,7 @@ const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-change-this-in-pro
 // 中间件
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('.'));
 
 // 用户注册
 app.post('/api/register', async (req, res) => {
