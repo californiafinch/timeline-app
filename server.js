@@ -303,6 +303,11 @@ app.delete('/api/favorites', async (req, res) => {
     }
 });
 
+// SPA 路由：所有非 API 请求返回 timeline.html
+app.get('*', (req, res) => {
+    res.sendFile(__dirname + '/timeline.html');
+});
+
 app.listen(PORT, () => {
     console.log(`服务器运行在 http://localhost:${PORT}`);
 });
