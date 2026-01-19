@@ -3,21 +3,56 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const supabase = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+
+// 强制要求 JWT_SECRET 环境变量
+const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) {
+    console.error('错误：必须设置 JWT_SECRET 环境变量');
+    console.error('请在 .env 文件中添加：JWT_SECRET=your-secret-key');
+    process.exit(1);
+}
 
 // 根路径路由：必须在静态文件中间件之前
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/timeline.html');
 });
 
-// 中间件
-app.use(cors());
+// 中间件配置
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://timeline-app-one.vercel.app'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('不允许的 CORS 来源'));
+        }
+    },
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(express.static('.'));
+
+// 请求速率限制
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 分钟
+    max: 100, // 限制每个 IP 100 个请求
+    message: '请求过于频繁，请稍后再试',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+app.use('/api/', limiter);
 
 // 用户注册
 app.post('/api/register', async (req, res) => {
@@ -25,8 +60,9 @@ app.post('/api/register', async (req, res) => {
         const { username, password, email, avatar } = req.body;
 
         // 验证用户名
-        if (!username || username.length > 16) {
-            return res.status(400).json({ error: '用户名不能为空且最多16个字符' });
+        const usernameRegex = /^[a-zA-Z0-9_]{1,16}$/;
+        if (!username || !usernameRegex.test(username)) {
+            return res.status(400).json({ error: '用户名只能包含字母、数字和下划线，最多16个字符' });
         }
 
         // 验证邮箱格式
