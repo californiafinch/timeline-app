@@ -1378,22 +1378,6 @@ const TimelineApp = {
         }
     },
     
-    async loadFavoritesFromServer() {
-        try {
-            const favorites = await this.storage.getFavorites();
-            
-            this.favorites = {
-                events: (favorites.events || []).map(id => ({ id, timestamp: Date.now() })),
-                characters: (favorites.characters || []).map(id => ({ id, timestamp: Date.now() })),
-                years: favorites.years || []
-            };
-            
-            this.renderTimeline();
-        } catch (error) {
-            console.error('加载收藏失败:', error);
-        }
-    },
-    
     showCharacterModal(charId) {
         const character = this.characters.find(c => c.id === charId);
         if (!character) return;
