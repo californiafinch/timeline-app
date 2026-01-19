@@ -17,6 +17,44 @@ if (!SECRET_KEY) {
     process.exit(1);
 }
 
+// 查询缓存
+const queryCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 分钟缓存时间
+
+function getCacheKey(prefix, userId) {
+    return `${prefix}:${userId}`;
+}
+
+function getFromCache(key) {
+    const cached = queryCache.get(key);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    return null;
+}
+
+function setCache(key, data) {
+    queryCache.set(key, {
+        data,
+        timestamp: Date.now()
+    });
+}
+
+function clearCache(prefix, userId) {
+    const key = getCacheKey(prefix, userId);
+    queryCache.delete(key);
+}
+
+// 定期清理过期缓存
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of queryCache.entries()) {
+        if (now - value.timestamp >= CACHE_TTL) {
+            queryCache.delete(key);
+        }
+    }
+}, 60 * 1000); // 每分钟清理一次
+
 // 根路径路由：必须在静态文件中间件之前
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/timeline.html');
@@ -129,7 +167,7 @@ app.post('/api/login', async (req, res) => {
 
         const { data: user, error } = await supabase
             .from('users')
-            .select('*')
+            .select('id, username, password, email, avatar')
             .eq('username', username)
             .single();
 
@@ -174,6 +212,14 @@ app.get('/api/user', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, SECRET_KEY);
+        
+        const cacheKey = getCacheKey('user', decoded.userId);
+        const cached = getFromCache(cacheKey);
+        
+        if (cached) {
+            return res.json(cached);
+        }
+        
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, email, avatar')
@@ -184,6 +230,7 @@ app.get('/api/user', async (req, res) => {
             return res.status(404).json({ error: '用户不存在' });
         }
 
+        setCache(cacheKey, user);
         res.json(user);
     } catch (error) {
         console.error('获取用户信息错误:', error);
@@ -226,6 +273,7 @@ app.put('/api/user', async (req, res) => {
             return res.status(404).json({ error: '用户不存在' });
         }
 
+        clearCache('user', decoded.userId);
         res.json({ message: '更新成功' });
     } catch (error) {
         console.error('更新用户信息错误:', error);
@@ -243,9 +291,17 @@ app.get('/api/favorites', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, SECRET_KEY);
+        
+        const cacheKey = getCacheKey('favorites', decoded.userId);
+        const cached = getFromCache(cacheKey);
+        
+        if (cached) {
+            return res.json(cached);
+        }
+        
         const { data: favorites, error } = await supabase
             .from('favorites')
-            .select('*')
+            .select('id, type, item_id')
             .eq('user_id', decoded.userId);
 
         if (error) {
@@ -257,7 +313,8 @@ app.get('/api/favorites', async (req, res) => {
             characters: favorites.filter(f => f.type === 'character').map(f => f.item_id),
             years: favorites.filter(f => f.type === 'year').map(f => f.item_id)
         };
-
+        
+        setCache(cacheKey, userFavorites);
         res.json(userFavorites);
     } catch (error) {
         console.error('获取收藏错误:', error);
@@ -279,7 +336,7 @@ app.post('/api/favorites', async (req, res) => {
 
         const { data: existingFavorite, error: checkError } = await supabase
             .from('favorites')
-            .select('*')
+            .select('id')
             .eq('user_id', decoded.userId)
             .eq('type', type)
             .eq('item_id', id)
@@ -307,6 +364,7 @@ app.post('/api/favorites', async (req, res) => {
             throw error;
         }
 
+        clearCache('favorites', decoded.userId);
         res.json({ message: '收藏成功' });
     } catch (error) {
         console.error('添加收藏错误:', error);
@@ -337,6 +395,7 @@ app.delete('/api/favorites', async (req, res) => {
             throw error;
         }
 
+        clearCache('favorites', decoded.userId);
         res.json({ message: '删除成功' });
     } catch (error) {
         console.error('删除收藏错误:', error);
