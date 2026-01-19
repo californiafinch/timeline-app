@@ -311,3 +311,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`服务器运行在 http://localhost:${PORT}`);
 });
+
+// Vercel 导出
+module.exports = app;
