@@ -12,8 +12,24 @@
       "dest": "/server.js"
     },
     {
+      "src": "/timeline.css",
+      "dest": "/timeline.css"
+    },
+    {
+      "src": "/mobile.css",
+      "dest": "/mobile.css"
+    },
+    {
+      "src": "/data/(.*)",
+      "dest": "/data/$1"
+    },
+    {
+      "src": "/timeline-optimized.js",
+      "dest": "/timeline-optimized.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/timeline.html"
     }
   ],
   "env": {
