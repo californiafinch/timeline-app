@@ -27,15 +27,23 @@ const TimelineApp = {
     
     // 初始化应用
     async init() {
-        this.cacheDOMElements();
-        this.showLoading();
-        await this.loadEvents();
-        await this.loadCharacters();
-        this.setupVirtualScroll();
-        this.renderTimeline();
-        this.setupEventListeners();
-        this.loadFavorites();
-        this.hideLoading();
+        console.log('开始初始化应用...');
+        try {
+            this.cacheDOMElements();
+            this.showLoading();
+            await this.loadEvents();
+            await this.loadCharacters();
+            this.setupVirtualScroll();
+            this.renderTimeline();
+            this.setupEventListeners();
+            this.loadFavorites();
+            this.hideLoading();
+            console.log('应用初始化完成');
+        } catch (error) {
+            console.error('初始化失败:', error);
+            this.hideLoading();
+            alert('应用初始化失败，请刷新页面重试');
+        }
     },
     
     // 缓存DOM元素
@@ -56,6 +64,16 @@ const TimelineApp = {
             countdownText: document.getElementById('countdownText'),
             timelineContainer: document.querySelector('.timeline-container')
         };
+
+        console.log('DOM 元素缓存完成:', Object.keys(this.domCache));
+        
+        const missingElements = Object.entries(this.domCache)
+            .filter(([key, value]) => !value)
+            .map(([key]) => key);
+        
+        if (missingElements.length > 0) {
+            console.warn('缺少的 DOM 元素:', missingElements);
+        }
     },
     
     // 设置虚拟滚动
@@ -130,15 +148,25 @@ const TimelineApp = {
     
     // 加载历史事件数据
     async loadEvents() {
+        console.log('开始加载事件数据...');
         if (typeof historicalEvents !== 'undefined') {
             this.events = historicalEvents;
+            console.log('事件数据加载完成，共', this.events.length, '个事件');
+        } else {
+            console.error('historicalEvents 未定义');
+            this.events = [];
         }
     },
     
     // 加载人物档案数据
     async loadCharacters() {
+        console.log('开始加载人物数据...');
         if (typeof historicalCharacters !== 'undefined') {
             this.characters = historicalCharacters;
+            console.log('人物数据加载完成，共', this.characters.length, '个人物');
+        } else {
+            console.error('historicalCharacters 未定义');
+            this.characters = [];
         }
     },
     
@@ -353,51 +381,58 @@ const TimelineApp = {
     
     // 渲染时间轴（优化版）
     renderTimeline() {
-        const timeline = this.domCache.timeline;
-        const timelineLine = timeline.querySelector('.timeline-line');
-        
-        // 清空现有内容
-        timeline.querySelectorAll('.timeline-event').forEach(el => el.remove());
-        timeline.querySelectorAll('.timeline-year-marker').forEach(el => el.remove());
-        
-        this.updatePageText();
-        
-        const filteredEvents = this.filterEvents();
-        const sortedEvents = filteredEvents.sort((a, b) => this.parseYear(a.year) - this.parseYear(b.year));
-        
-        const eventsByYear = {};
-        sortedEvents.forEach(event => {
-            if (!eventsByYear[event.year]) {
-                eventsByYear[event.year] = [];
+        try {
+            console.log('开始渲染时间轴...');
+            const timeline = this.domCache.timeline;
+            const timelineLine = timeline.querySelector('.timeline-line');
+            
+            if (!timeline) {
+                console.error('timeline 元素不存在');
+                return;
             }
-            eventsByYear[event.year].push(event);
-        });
-        
-        const categoryOrder = ['political', 'military', 'technology', 'cultural'];
-        
-        const noResultsElement = this.domCache.noResults;
-        const timelineContainer = this.domCache.timelineContainer;
-        
-        if (sortedEvents.length === 0) {
-            noResultsElement.style.display = 'block';
-            timelineContainer.style.display = 'none';
             
-            let countdown = 5;
-            const countdownElement = this.domCache.countdownText;
+            // 清空现有内容
+            timeline.querySelectorAll('.timeline-event').forEach(el => el.remove());
+            timeline.querySelectorAll('.timeline-year-marker').forEach(el => el.remove());
             
-            const timer = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = `${countdown}秒后自动返回`;
-                
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    this.clearSearch();
+            this.updatePageText();
+            
+            const filteredEvents = this.filterEvents();
+            const sortedEvents = filteredEvents.sort((a, b) => this.parseYear(a.year) - this.parseYear(b.year));
+            
+            const eventsByYear = {};
+            sortedEvents.forEach(event => {
+                if (!eventsByYear[event.year]) {
+                    eventsByYear[event.year] = [];
                 }
-            }, 1000);
-        } else {
-            noResultsElement.style.display = 'none';
-            timelineContainer.style.display = 'block';
-        }
+                eventsByYear[event.year].push(event);
+            });
+            
+            const categoryOrder = ['political', 'military', 'technology', 'cultural'];
+            
+            const noResultsElement = this.domCache.noResults;
+            const timelineContainer = this.domCache.timelineContainer;
+            
+            if (sortedEvents.length === 0) {
+                noResultsElement.style.display = 'block';
+                timelineContainer.style.display = 'none';
+                
+                let countdown = 5;
+                const countdownElement = this.domCache.countdownText;
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = `${countdown}秒后自动返回`;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        this.clearSearch();
+                    }
+                }, 1000);
+            } else {
+                noResultsElement.style.display = 'none';
+                timelineContainer.style.display = 'block';
+            }
         
         // 只渲染可见的年份（虚拟滚动）
         const sortedYears = Object.keys(eventsByYear).sort((a, b) => this.parseYear(a) - this.parseYear(b));
@@ -457,6 +492,11 @@ const TimelineApp = {
         
         this.yearPositions = yearPositions;
         this.updateTimelineHeight();
+        console.log('时间轴渲染完成');
+        } catch (error) {
+            console.error('渲染时间轴失败:', error);
+            alert('渲染时间轴失败，请刷新页面重试');
+        }
     },
     
     // 加载更多事件
