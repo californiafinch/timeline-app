@@ -167,7 +167,9 @@ const TimelineApp = {
     
     // 存储管理模块：封装localStorage和API操作
     storage: {
-        apiBaseUrl: 'http://localhost:3000/api',
+        apiBaseUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3000/api' 
+            : '/api',
         
         // 缓存机制
         cache: {
@@ -220,22 +222,39 @@ const TimelineApp = {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
             
-            const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
-                ...options,
-                headers: { ...headers, ...options.headers }
-            });
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || '请求失败');
+            try {
+                const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+                    ...options,
+                    headers: { ...headers, ...options.headers },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `请求失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (options.method === 'GET') {
+                    this.setCache(cacheKey, data);
+                }
+                
+                return data;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                
+                if (error.name === 'AbortError') {
+                    throw new Error('请求超时，请检查网络连接');
+                }
+                
+                throw error;
             }
-            
-            if (options.method === 'GET') {
-                this.setCache(cacheKey, data);
-            }
-            
-            return data;
         },
         
         async register(username, password, email, avatar) {
@@ -982,6 +1001,9 @@ const TimelineApp = {
             } catch (error) {
                 console.error('检查登录状态错误:', error);
                 this.storage.clearToken();
+                this.isLoggedIn = false;
+                this.currentUser = null;
+                this.updateUserDisplay();
             }
         }
     },
