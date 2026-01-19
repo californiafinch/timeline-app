@@ -1001,7 +1001,10 @@ const TimelineApp = {
         const token = this.storage.getToken();
         if (token) {
             try {
-                const user = await this.storage.getUser();
+                const user = await Promise.race([
+                    this.storage.getUser(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('登录状态检查超时')), 5000))
+                ]);
                 this.isLoggedIn = true;
                 this.currentUser = user;
                 this.updateUserDisplay();
@@ -1462,7 +1465,10 @@ const TimelineApp = {
         }
         
         try {
-            const favorites = await this.storage.getFavorites();
+            const favorites = await Promise.race([
+                this.storage.getFavorites(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('加载收藏超时')), 5000))
+            ]);
             
             this.favorites = {
                 events: (favorites.events || []).map(id => ({ id, timestamp: Date.now() })),
@@ -1496,5 +1502,7 @@ function showCharacterFromFavorites(charId) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await TimelineApp.init();
-    await TimelineApp.checkLoginState();
+    TimelineApp.checkLoginState().catch(error => {
+        console.error('登录状态检查失败:', error);
+    });
 });
