@@ -308,9 +308,29 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/timeline.html');
 });
 
-app.listen(PORT, () => {
-    console.log(`服务器运行在 http://localhost:${PORT}`);
+// 404 处理：API 请求返回 404 JSON，其他请求返回 timeline.html
+app.use((req, res) => {
+    console.log('404:', req.path);
+    
+    if (req.path.startsWith('/api/')) {
+        res.status(404).json({ error: '未找到' });
+    } else {
+        res.sendFile(__dirname + '/timeline.html');
+    }
 });
+
+// 错误处理中间件（必须放在最后）
+app.use((err, req, res, next) => {
+    console.error('服务器错误:', err);
+    res.status(500).json({ error: '服务器内部错误' });
+});
+
+// 只在本地开发环境中启动服务器
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`服务器运行在 http://localhost:${PORT}`);
+    });
+}
 
 // Vercel 导出
 module.exports = app;
