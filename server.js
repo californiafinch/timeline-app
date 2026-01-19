@@ -9,6 +9,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
+// 根路径路由：必须在静态文件中间件之前
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/timeline.html');
+});
+
 // 中间件
 app.use(cors());
 app.use(express.json());
@@ -301,11 +306,6 @@ app.delete('/api/favorites', async (req, res) => {
         console.error('删除收藏错误:', error);
         res.status(500).json({ error: '删除失败' });
     }
-});
-
-// SPA 路由：只对根路径和前端路由返回 timeline.html
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/timeline.html');
 });
 
 // 404 处理：API 请求返回 404 JSON，其他请求返回 timeline.html
