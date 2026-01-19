@@ -1,6 +1,8 @@
 const TimelineApp = {
     events: [],
     characters: [],
+    sortedCharacters: [],
+    characterRegexMap: {},
     zoomLevel: 100,
     isLoggedIn: false,
     currentUser: null,
@@ -163,10 +165,17 @@ const TimelineApp = {
         console.log('开始加载人物数据...');
         if (typeof historicalCharacters !== 'undefined') {
             this.characters = historicalCharacters;
+            this.sortedCharacters = [...this.characters].sort((a, b) => b.name.length - a.name.length);
+            this.characterRegexMap = {};
+            this.characters.forEach(character => {
+                this.characterRegexMap[character.id] = new RegExp(`(${character.name})`, 'g');
+            });
             console.log('人物数据加载完成，共', this.characters.length, '个人物');
         } else {
             console.error('historicalCharacters 未定义');
             this.characters = [];
+            this.sortedCharacters = [];
+            this.characterRegexMap = {};
         }
     },
     
@@ -579,10 +588,8 @@ const TimelineApp = {
         const placeholders = [];
         let placeholderIndex = 0;
         
-        const sortedCharacters = [...this.characters].sort((a, b) => b.name.length - a.name.length);
-        
-        sortedCharacters.forEach(character => {
-            const regex = new RegExp(`(${character.name})`, 'g');
+        this.sortedCharacters.forEach(character => {
+            const regex = this.characterRegexMap[character.id];
             result = result.replace(regex, `<span class="character-link" data-char-id="${character.id}">$1</span>`);
         });
         
