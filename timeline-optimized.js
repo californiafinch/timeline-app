@@ -509,6 +509,14 @@ const TimelineApp = {
     },
     
     updatePageText() {
+        const filteredEvents = this.filterEvents();
+        const totalEvents = filteredEvents.length;
+        const totalYears = new Set(filteredEvents.map(e => e.year)).size;
+        
+        const pageText = document.querySelector('.page-text');
+        if (pageText) {
+            pageText.textContent = `共 ${totalEvents} 个事件，${totalYears} 个年份`;
+        }
     },
     
     clearSearch() {
@@ -1486,7 +1494,7 @@ function showCharacterFromFavorites(charId) {
     TimelineApp.showCharacterFromFavorites(charId);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    TimelineApp.init();
-    TimelineApp.checkLoginState();
+document.addEventListener('DOMContentLoaded', async () => {
+    await TimelineApp.init();
+    await TimelineApp.checkLoginState();
 });
