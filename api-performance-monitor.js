@@ -4,13 +4,13 @@ const API_BASE_URL = 'http://localhost:3000/api';
 
 const performanceData = [];
 
-async function monitorAPI(endpoint, method = 'GET', body = null) {
+async function monitorAPI(endpoint, method = 'GET', body = null, headers = null) {
     const startTime = Date.now();
     
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method,
-            headers: {
+            headers: headers || {
                 'Content-Type': 'application/json'
             },
             body: body ? JSON.stringify(body) : null
@@ -150,24 +150,26 @@ async function runTests() {
         
         if (loginResponse.data.token) {
             const token = loginResponse.data.token;
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
             
-            await monitorAPI(`/user?token=${token}`);
-            await monitorAPI(`/favorites?token=${token}`);
+            await monitorAPI('/user', 'GET', null, headers);
+            await monitorAPI('/favorites', 'GET', null, headers);
             
             await monitorAPI('/favorites', 'POST', {
-                token,
                 event_id: 1,
                 character_id: 1
-            });
+            }, headers);
             
-            await monitorAPI(`/favorites?token=${token}`);
+            await monitorAPI('/favorites', 'GET', null, headers);
             
             await monitorAPI('/favorites', 'DELETE', {
-                token,
                 event_id: 1
-            });
+            }, headers);
             
-            await monitorAPI(`/favorites?token=${token}`);
+            await monitorAPI('/favorites', 'GET', null, headers);
         }
         
         generateReport();
