@@ -126,10 +126,43 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+// 发送邮箱验证码
+app.post('/api/send-verification', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: '邮箱不能为空' });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: '邮箱格式不正确' });
+        }
+
+        const { data, error } = await supabase.auth.signInWithOtp({
+            email
+        });
+
+        if (error) {
+            console.error('发送验证码失败:', error);
+            return res.status(500).json({ error: '发送验证码失败' });
+        }
+
+        res.json({
+            message: '验证码已发送',
+            email
+        });
+    } catch (error) {
+        console.error('发送验证码错误:', error);
+        res.status(500).json({ error: '发送验证码失败' });
+    }
+});
+
 // 用户注册
 app.post('/api/register', async (req, res) => {
     try {
-        const { username, password, email, avatar } = req.body;
+        const { username, password, email, avatar, verificationCode } = req.body;
 
         // 验证用户名
         const usernameRegex = /^[a-zA-Z0-9_]{1,16}$/;
@@ -155,6 +188,30 @@ app.post('/api/register', async (req, res) => {
         const hasLowerCase = /[a-z]/.test(password);
         if (!hasUpperCase || !hasLowerCase) {
             return res.status(400).json({ error: '密码必须包含至少一位大写字母和一位小写字母' });
+        }
+
+        // 验证邮箱验证码（如果提供了邮箱）
+        if (email) {
+            if (!verificationCode) {
+                return res.status(400).json({ error: '请先发送验证码' });
+            }
+
+            // 验证验证码（6位数字）
+            const otpRegex = /^\d{6}$/;
+            if (!otpRegex.test(verificationCode)) {
+                return res.status(400).json({ error: '验证码格式不正确' });
+            }
+
+            // 使用 Supabase Auth 验证 OTP
+            const { data: otpData, error: otpError } = await supabase.auth.verifyOtp({
+                email,
+                token: verificationCode,
+                type: 'email'
+            });
+
+            if (otpError || !otpData) {
+                return res.status(400).json({ error: '验证码错误或已过期' });
+            }
         }
 
         const { data: existingUser } = await supabase
