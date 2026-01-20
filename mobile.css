@@ -1,0 +1,261 @@
+/* 移动端样式优化 */
+
+/* 移动端响应式断点 */
+@media (max-width: 768px) {
+    /* 固定导航栏优化 */
+    .fixed-nav-bar {
+        padding: 8px 15px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    /* 标题样式优化 */
+    .title {
+        font-size: 18px;
+    }
+
+    .subtitle {
+        font-size: 12px;
+    }
+
+    /* 导航按钮优化 */
+    .nav-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: auto;
+    }
+
+    .zoom-btn {
+        padding: 6px 10px;
+        min-width: 35px;
+        font-size: 12px;
+    }
+
+    /* 搜索和筛选区域优化 */
+    .search-container,
+    .filter-container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .search-input,
+    .category-filter {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* 时间轴容器优化 */
+    .timeline-container {
+        padding: 10px;
+    }
+
+    /* 时间轴线条优化 */
+    .timeline-line {
+        width: 3px;
+        left: 20px;
+    }
+
+    /* 年份标记优化 */
+    .timeline-year-marker {
+        font-size: 16px;
+        padding: 8px 15px;
+        left: 20px;
+        transform: translateX(-50%);
+    }
+
+    /* 事件卡片优化 */
+    .timeline-event {
+        width: 100%;
+        margin-left: 40px;
+        margin-right: 0;
+        padding: 12px;
+    }
+
+    .timeline-event.left {
+        margin-left: 40px;
+        margin-right: 0;
+    }
+
+    .timeline-event.right {
+        margin-left: 40px;
+        margin-right: 0;
+    }
+
+    /* 事件卡片内容优化 */
+    .event-card {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .event-title {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .event-description {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .event-category {
+        font-size: 12px;
+        padding: 4px 8px;
+        margin-bottom: 8px;
+    }
+
+    /* 按钮优化 */
+    .action-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+        width: 100%;
+    }
+
+    /* 模态框优化 */
+    .modal {
+        padding: 20px;
+        max-width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+
+    /* 表单优化 */
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .form-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* 用户菜单优化 */
+    .user-menu {
+        right: 10px;
+        width: 200px;
+    }
+
+    /* 收藏列表优化 */
+    .favorites-list {
+        padding: 10px 0;
+    }
+
+    .favorite-item {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+
+    /* 人物档案优化 */
+    .character-info {
+        padding: 15px;
+    }
+
+    .character-name {
+        font-size: 18px;
+    }
+
+    .character-bio {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    .title {
+        font-size: 16px;
+    }
+
+    .subtitle {
+        font-size: 11px;
+    }
+
+    .nav-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .event-card {
+        padding: 12px;
+    }
+
+    .event-title {
+        font-size: 14px;
+    }
+
+    .event-description {
+        font-size: 12px;
+    }
+
+    .modal {
+        padding: 15px;
+        max-width: 95%;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .nav-btn,
+    .action-btn,
+    .form-btn {
+        min-height: 44px;
+    }
+
+    .timeline-event {
+        min-height: 80px;
+    }
+}
+
+/* 横屏优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .fixed-nav-bar {
+        padding: 5px 10px;
+    }
+
+    .title {
+        font-size: 16px;
+    }
+
+    .timeline-event {
+        margin-left: 30px;
+    }
+}
+
+/* 性能优化 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a2e;
+    }
+
+    .fixed-nav-bar {
+        background: linear-gradient(135deg, #2d3748, #1a1a2e);
+    }
+
+    .nav-btn {
+        background-color: #2d3748;
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+
+    .event-card {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+}
