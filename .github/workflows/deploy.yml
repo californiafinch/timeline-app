@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'timeline.html'
+      - 'timeline.css'
+      - 'timeline.js'
+      - 'timeline-optimized.js'
+      - 'mobile.css'
+      - 'data/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create index.html redirect
+        run: |
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>历史年表</title>
+              <script>
+                  window.location.href = 'timeline.html';
+              </script>
+          </head>
+          <body>
+              <p>正在重定向到时间轴页面...</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .

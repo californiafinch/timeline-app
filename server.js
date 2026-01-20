@@ -63,7 +63,8 @@ app.get('/', (req, res) => {
 // 中间件配置
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://timeline-app-one.vercel.app'
+    'https://timeline-app-one.vercel.app',
+    'https://californiafinch.github.io'
 ];
 
 app.use(cors({

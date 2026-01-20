@@ -1,0 +1,21 @@
+version: "1"
+services:
+  - type: web
+    name: timeline-app
+    env: node
+    plan: free
+    buildCommand: "npm install && npm run build"
+    startCommand: "node server.js"
+    autoDeploy: false
+    healthcheckPath: /
+    healthcheckTimeout: 30
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+        sync: false
