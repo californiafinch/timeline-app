@@ -30,11 +30,29 @@
   ],
   "headers": [
     {
-      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$",
+      "source": "/(.*)\\.(js|css)$",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico)$",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(woff|woff2|ttf|eot)$",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, immutable"
         }
       ]
     },
@@ -59,7 +77,19 @@
   "functions": {
     "api/**/*.js": {
       "memory": 1024,
-      "maxDuration": 10
+      "maxDuration": 10,
+      "keepAlive": true,
+      "minInstances": 1
+    },
+    "api/warmup.js": {
+      "memory": 512,
+      "maxDuration": 5
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "api/warmup",
+      "schedule": "*/10 * * * *"
+    }
+  ]
 }

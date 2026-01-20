@@ -44,7 +44,7 @@ const TimelineApp = {
         } catch (error) {
             console.error('初始化失败:', error);
             this.hideLoading();
-            alert('应用初始化失败，请刷新页面重试');
+            this.toast.error('初始化失败', '应用初始化失败，请刷新页面重试');
         }
     },
     
@@ -180,25 +180,120 @@ const TimelineApp = {
     },
     
     // 显示加载状态
-    showLoading() {
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.id = 'loadingOverlay';
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.innerHTML = `
-            <div class="loading-spinner"></div>
-            <div class="loading-text">加载中...</div>
-        `;
-        document.body.appendChild(loadingOverlay);
+    showLoading(message = '正在加载...') {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            const loadingText = loadingOverlay.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+            loadingOverlay.classList.remove('fade-out');
+            loadingOverlay.style.display = 'flex';
+        }
     },
-    
+
     // 隐藏加载状态
     hideLoading() {
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.classList.add('fade-out');
             setTimeout(() => {
-                loadingOverlay.remove();
+                loadingOverlay.style.display = 'none';
             }, 300);
+        }
+    },
+
+    // Toast通知系统
+    toast: {
+        container: null,
+        
+        // 初始化Toast容器
+        init() {
+            this.container = document.getElementById('toastContainer');
+            if (!this.container) {
+                this.container = document.createElement('div');
+                this.container.id = 'toastContainer';
+                this.container.className = 'toast-container';
+                document.body.appendChild(this.container);
+            }
+        },
+        
+        // 显示Toast通知
+        show(type, title, message, duration = 3000) {
+            if (!this.container) {
+                this.init();
+            }
+            
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            
+            this.container.appendChild(toast);
+            
+            // 关闭按钮事件
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', () => this.dismiss(toast));
+            
+            // 自动关闭
+            if (duration > 0) {
+                setTimeout(() => this.dismiss(toast), duration);
+            }
+            
+            return toast;
+        },
+        
+        // 关闭Toast通知
+        dismiss(toast) {
+            if (!toast || !toast.parentNode) return;
+            
+            toast.classList.add('slide-out');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        },
+        
+        // 显示成功消息
+        success(title, message, duration) {
+            return this.show('success', title, message, duration);
+        },
+        
+        // 显示错误消息
+        error(title, message, duration) {
+            return this.show('error', title, message, duration);
+        },
+        
+        // 显示警告消息
+        warning(title, message, duration) {
+            return this.show('warning', title, message, duration);
+        },
+        
+        // 显示信息消息
+        info(title, message, duration) {
+            return this.show('info', title, message, duration);
+        },
+        
+        // 清除所有Toast
+        clearAll() {
+            if (!this.container) return;
+            
+            const toasts = this.container.querySelectorAll('.toast');
+            toasts.forEach(toast => this.dismiss(toast));
         }
     },
     
@@ -504,7 +599,7 @@ const TimelineApp = {
         console.log('时间轴渲染完成');
         } catch (error) {
             console.error('渲染时间轴失败:', error);
-            alert('渲染时间轴失败，请刷新页面重试');
+            this.toast.error('渲染失败', '渲染时间轴失败，请刷新页面重试');
         }
     },
     
@@ -885,11 +980,12 @@ const TimelineApp = {
         const password = document.getElementById('password').value;
         
         if (!username || !password) {
-            alert('请输入用户名和密码');
+            this.toast.warning('输入错误', '请输入用户名和密码');
             return;
         }
         
         try {
+            this.showLoading('正在登录...');
             const data = await this.storage.login(username, password);
             
             console.log('登录成功，用户数据:', data.user);
@@ -904,7 +1000,9 @@ const TimelineApp = {
                 this.loadFavoritesFromServer();
             }
         } catch (error) {
-            alert(error.message || '登录失败，请重试');
+            this.toast.error('登录失败', error.message || '登录失败，请重试');
+        } finally {
+            this.hideLoading();
         }
     },
     
@@ -931,43 +1029,46 @@ const TimelineApp = {
         const avatar = document.getElementById('registerAvatar').value;
         
         if (!username || username.length > 16) {
-            alert('用户名不能为空且最多16个字符');
+            this.toast.warning('用户名错误', '用户名不能为空且最多16个字符');
             return;
         }
         
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || !emailRegex.test(email)) {
-            alert('请输入正确的邮箱格式');
+            this.toast.warning('邮箱错误', '请输入正确的邮箱格式');
             return;
         }
         
         if (password.length < 8 || password.length > 16) {
-            alert('密码长度必须在8-16位之间');
+            this.toast.warning('密码错误', '密码长度必须在8-16位之间');
             return;
         }
         
         const hasUpperCase = /[A-Z]/.test(password);
         const hasLowerCase = /[a-z]/.test(password);
         if (!hasUpperCase || !hasLowerCase) {
-            alert('密码必须包含至少一位大写字母和一位小写字母');
+            this.toast.warning('密码错误', '密码必须包含至少一位大写字母和一位小写字母');
             return;
         }
         
         if (password !== confirmPassword) {
-            alert('两次输入的密码不一致');
+            this.toast.warning('密码错误', '两次输入的密码不一致');
             return;
         }
         
         try {
+            this.showLoading('正在注册...');
             const data = await this.storage.register(username, password, email, avatar);
             
             if (data.user) {
-                alert('注册成功！请登录');
+                this.toast.success('注册成功', '注册成功！请登录');
                 this.hideRegisterModal();
                 this.showLoginModal();
             }
         } catch (error) {
-            alert(error.message || '注册失败，请重试');
+            this.toast.error('注册失败', error.message || '注册失败，请重试');
+        } finally {
+            this.hideLoading();
         }
     },
     
@@ -1002,12 +1103,12 @@ const TimelineApp = {
         if (!file) return;
         
         if (!file.type.startsWith('image/')) {
-            alert('请选择图片文件');
+            this.toast.warning('文件错误', '请选择图片文件');
             return;
         }
         
         if (file.size > 2 * 1024 * 1024) {
-            alert('图片大小不能超过 2MB');
+            this.toast.warning('文件过大', '图片大小不能超过 2MB');
             return;
         }
         
@@ -1177,7 +1278,7 @@ const TimelineApp = {
         const confirmPassword = document.getElementById('settingsConfirmPassword').value;
         
         if (newPassword && newPassword !== confirmPassword) {
-            alert('两次输入的密码不一致');
+            this.toast.warning('密码错误', '两次输入的密码不一致');
             return;
         }
         
@@ -1207,14 +1308,14 @@ const TimelineApp = {
                     this.updateUserDisplay();
                 }
                 
-                alert('账号设置保存成功！');
+                this.toast.success('保存成功', '账号设置保存成功！');
             } else {
-                alert('请输入要修改的信息');
+                this.toast.warning('输入错误', '请输入要修改的信息');
             }
             
             this.hideAccountSettings();
         } catch (error) {
-            alert('保存失败：' + (error.message || '未知错误'));
+            this.toast.error('保存失败', '保存失败：' + (error.message || '未知错误'));
         }
     },
     
@@ -1360,6 +1461,7 @@ const TimelineApp = {
             console.log('收藏排序已更新');
         } catch (error) {
             console.error('保存收藏排序失败:', error);
+            this.toast.error('保存失败', '保存收藏排序失败');
         }
     },
     
@@ -1381,7 +1483,7 @@ const TimelineApp = {
             this.renderTimeline();
         } catch (error) {
             console.error('取消收藏失败:', error);
-            alert('保存失败：' + (error.message || '未知错误'));
+            this.toast.error('操作失败', '保存失败：' + (error.message || '未知错误'));
         }
     },
     
@@ -1496,6 +1598,7 @@ const TimelineApp = {
         }
         
         try {
+            this.showLoading('正在加载收藏...');
             const favorites = await Promise.race([
                 this.storage.getFavorites(),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('加载收藏超时')), 5000))
@@ -1511,6 +1614,9 @@ const TimelineApp = {
             this.renderTimeline();
         } catch (error) {
             console.error('加载收藏失败:', error);
+            alert('加载收藏失败，请稍后重试');
+        } finally {
+            this.hideLoading();
         }
     }
 };

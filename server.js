@@ -4,7 +4,6 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
-const supabase = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,9 +16,20 @@ if (!SECRET_KEY) {
     process.exit(1);
 }
 
+// 懒加载 Supabase 客户端
+let supabase = null;
+
+function getSupabaseClient() {
+    if (!supabase) {
+        supabase = require('./supabase');
+    }
+    return supabase;
+}
+
 // 查询缓存
 const queryCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 分钟缓存时间
+const CACHE_TTL = 10 * 60 * 1000; // 增加到 10 分钟缓存时间
+const CACHE_SIZE = 100; // 最大缓存条目数
 
 function getCacheKey(prefix, userId) {
     return `${prefix}:${userId}`;
@@ -34,6 +44,12 @@ function getFromCache(key) {
 }
 
 function setCache(key, data) {
+    // 如果缓存已满，删除最旧的条目
+    if (queryCache.size >= CACHE_SIZE) {
+        const oldestKey = queryCache.keys().next().value;
+        queryCache.delete(oldestKey);
+    }
+    
     queryCache.set(key, {
         data,
         timestamp: Date.now()
@@ -81,6 +97,23 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.static('.'));
+
+// 响应时间日志中间件
+app.use((req, res, next) => {
+    const startTime = Date.now();
+    
+    // 监听响应完成
+    res.on('finish', () => {
+        const duration = Date.now() - startTime;
+        
+        // 记录慢请求（> 1 秒）
+        if (duration > 1000) {
+            console.log(`慢请求: ${req.method} ${req.path} - ${duration}ms`);
+        }
+    });
+    
+    next();
+});
 
 // 请求速率限制
 const limiter = rateLimit({

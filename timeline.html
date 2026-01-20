@@ -13,6 +13,15 @@
 <body>
     <!-- 主容器 -->
     <div class="container">
+        <!-- 加载遮罩层：页面加载时显示 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在加载...</div>
+        </div>
+
+        <!-- Toast通知容器：显示成功/错误消息 -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- 固定顶部栏：包含标题、副标题和控制按钮 -->
         <nav class="fixed-nav-bar">
             <!-- 标题区域：居中显示 -->
