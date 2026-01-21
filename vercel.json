@@ -72,23 +72,5 @@
         }
       ]
     }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 10,
-      "keepAlive": true,
-      "minInstances": 1
-    },
-    "api/warmup.js": {
-      "memory": 512,
-      "maxDuration": 5
-    }
-  },
-  "crons": [
-    {
-      "path": "api/warmup",
-      "schedule": "*/10 * * * *"
-    }
   ]
 }
