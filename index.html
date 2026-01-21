@@ -3,26 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline App</title>
-    <script>
-        // 检测当前路径并自动跳转到相应页面
-        const currentPath = window.location.pathname;
-        
-        // 如果访问主域名或根目录，重定向到 timeline-app 子目录
-        if (currentPath === '/' || currentPath === '/index.html') {
-            window.location.href = '/timeline-app/';
-        } 
-        // 如果访问 timeline-app 子目录，重定向到 timeline.html
-        else if (currentPath === '/timeline-app/' || currentPath === '/timeline-app/index.html') {
-            window.location.href = '/timeline-app/timeline.html';
-        }
-        // 如果访问 timeline.html，保持不变
-        else if (currentPath === '/timeline.html' || currentPath === '/timeline-app/timeline.html') {
-            // 不做任何操作，让页面正常加载
-        }
-    </script>
+    <title>历史年表</title>
+    <link rel="stylesheet" href="timeline.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link rel="preload" href="data/events.js" as="script">
+    <link rel="preload" href="data/characters.js" as="script">
+    <link rel="preload" href="timeline-optimized.js" as="script">
 </head>
 <body>
-    <p>正在重定向...</p>
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 加载遮罩层：页面加载时显示 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在加载...</div>
+        </div>
+
+        <!-- Toast通知容器：显示成功/错误消息 -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- 固定顶部栏：包含标题、副标题和控制按钮 -->
+        <nav class="fixed-nav-bar">
+            <!-- 标题区域：居中显示 -->
+            <div class="header">
+                <h1 class="title">历史年表</h1>
+                <p class="subtitle">探索历史的长河</p>
+            </div>
+            <!-- 控制按钮区域 -->
+            <div class="nav-controls">
+                <!-- 事件类型筛选器：按政治、文化、科技、军事筛选 -->
+                <select class="filter-select" id="categoryFilter">
+                    <option value="all">全部类型</option>
+                    <option value="political">政治</option>
+                    <option value="cultural">文化</option>
+                    <option value="technology">科技</option>
+                    <option value="military">军事</option>
+                </select>
+                <!-- 人物分类筛选器：按政治家、军事家、科学家、文学家、哲学家筛选 -->
+                <select class="filter-select" id="characterCategoryFilter">
+                    <option value="all">全部人物</option>
+                    <option value="political">政治家</option>
+                    <option value="military">军事家</option>
+                    <option value="scientist">科学家</option>
+                    <option value="literary">文学家</option>
+                    <option value="philosopher">哲学家</option>
+                </select>
+                <!-- 搜索输入框容器：始终显示 -->
+                <div class="search-container" id="searchContainer">
+                    <!-- 搜索输入框：搜索事件或人物 -->
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索事件或人物...">
+                    <!-- 搜索图标按钮：点击搜索 -->
+                    <button class="search-btn" id="searchBtn">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 放大镜镜面：白色填充，灰色边框 -->
+                            <circle cx="11" cy="11" r="8" fill="white" stroke="#999" stroke-width="2"/>
+                            <!-- 放大镜柄部：白色填充，灰色边框 -->
+                            <line x1="17" y1="17" x2="21" y2="21" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- 缩小按钮：缩小时间轴显示 -->
+                <button class="nav-btn zoom-btn" id="zoomOutBtn">-</button>
+                <!-- 缩放级别显示：显示当前缩放比例 -->
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <!-- 放大按钮：放大时间轴显示 -->
+                <button class="nav-btn zoom-btn" id="zoomInBtn">+</button>
+                <!-- 登录按钮容器：包含登录按钮和用户菜单 -->
+                <div class="login-container">
+                    <!-- 登录按钮：打开登录弹窗或退出登录 -->
+                    <button class="nav-btn" id="loginBtn">登录</button>
+                    <!-- 用户菜单弹窗：用户功能菜单 -->
+                    <div class="user-menu" id="userMenu">
+                        <!-- 账号设置：修改用户信息 -->
+                        <div class="menu-item" id="accountSettings">
+                            <span class="menu-icon">⚙️</span>
+                            <span class="menu-text">账号设置</span>
+                        </div>
+                        <!-- 收藏内容：查看收藏列表 -->
+                        <div class="menu-item" id="viewFavorites">
+                            <span class="menu-icon">⭐</span>
+                            <span class="menu-text">收藏内容</span>
+                        </div>
+                        <!-- 更换账户：切换到其他账户 -->
+                        <div class="menu-item" id="switchAccount">
+                            <span class="menu-icon">🔄</span>
+                            <span class="menu-text">更换账户</span>
+                        </div>
+                        <!-- 退出登录：登出当前用户 -->
+                        <div class="menu-item" id="logoutBtn">
+                            <span class="menu-icon">🚪</span>
+                            <span class="menu-text">退出登录</span>
+                        </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主内容区：时间轴容器 -->
+        <main class="main-content">
+            <!-- 未登录提示：当用户未登录时显示 -->
+            <div class="no-login" id="noLogin">
+                <div class="no-login-content">
+                    <div class="no-login-icon">🔒</div>
+                    <h2>请先登录</h2>
+                    <p>登录后即可浏览历史年表</p>
+                    <button class="login-now-btn" id="loginNowBtn">立即登录</button>
+                </div>
+            </div>
+            <!-- 搜索结果为空提示：当搜索不到内容时显示 -->
+            <div class="no-results" id="noResults">
+                <p>抱歉，没有找到相关结果。</p>
+                <p id="countdownText">5秒后自动返回</p>
+            </div>
+            <!-- 时间轴容器：可横向滚动 -->
+            <div class="timeline-container">
+                <!-- 时间轴：包含所有事件卡片 -->
+                <div class="timeline" id="timeline">
+                    <!-- 时间轴线：中央的横向线条 -->
+                    <div class="timeline-line"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 人物档案弹窗：显示人物详细信息 -->
+        <div class="character-modal" id="characterModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="modalOverlay"></div>
+            <!-- 弹窗内容：人物信息 -->
+            <div class="modal-content">
+                <!-- 关闭按钮：关闭人物档案弹窗 -->
+                <button class="modal-close" id="modalClose">&times;</button>
+                <!-- 人物信息容器：动态填充人物数据 -->
+                <div class="character-info" id="characterInfo">
+                </div>
+            </div>
+        </div>
+
+        <!-- 登录弹窗：用户登录界面 -->
+        <div class="login-modal" id="loginModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="loginOverlay"></div>
+            <!-- 登录内容：登录表单 -->
+            <div class="modal-content login-content">
+                <!-- 关闭按钮：关闭登录弹窗 -->
+                <button class="modal-close" id="loginClose">&times;</button>
+                <!-- 登录标题 -->
+                <h2>用户登录</h2>
+                <!-- 登录表单：用户名和密码输入 -->
+                <form id="loginForm">
+                    <!-- 用户名输入组 -->
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <!-- 密码输入组 -->
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="显示/隐藏密码">
+                                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="eye-icon eye-closed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 登录提交按钮 -->
+                    <button type="submit" class="submit-btn">登录</button>
+                    <!-- 注册按钮 -->
+                    <button type="button" class="register-btn" id="showRegisterBtn">注册新账户</button>
+                    <!-- 忘记密码链接 -->
+                    <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">忘记密码？</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 忘记密码弹窗：重置密码 -->
+        <div class="forgot-password-modal" id="forgotPasswordModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="forgotPasswordOverlay"></div>
+            <!-- 忘记密码内容：重置密码表单 -->
+            <div class="modal-content forgot-password-content">
+                <!-- 关闭按钮：关闭忘记密码弹窗 -->
+                <button class="modal-close" id="forgotPasswordClose">&times;</button>
+                <!-- 忘记密码标题 -->
+                <h2>重置密码</h2>
+                <!-- 重置密码表单 -->
+                <form id="forgotPasswordForm">
+                    <!-- 用户名输入组 -->
+                    <div class="form-group">
+                        <label for="forgotUsername">用户名</label>
+                        <input type="text" id="forgotUsername" name="username" required>
+                    </div>
+                    <!-- 邮箱输入组 -->
+                    <div class="form-group">
+                        <label for="forgotEmail">邮箱</label>
+                        <input type="email" id="forgotEmail" name="email" required placeholder="请输入注册时的邮箱">
+                    </div>
+                    <!-- 新密码输入组 -->
+                    <div class="form-group">
+                        <label for="forgotNewPassword">新密码</label>
+                        <input type="password" id="forgotNewPassword" name="newPassword" required minlength="8" maxlength="16" placeholder="8-16位，包含大小写字母">
+                    </div>
+                    <!-- 确认密码输入组 -->
+                    <div class="form-group">
+                        <label for="forgotConfirmPassword">确认密码</label>
+                        <input type="password" id="forgotConfirmPassword" name="confirmPassword" required placeholder="请再次输入新密码">
+                    </div>
+                    <!-- 提交按钮 -->
+                    <button type="submit" class="submit-btn">重置密码</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 注册弹窗：用户注册界面 -->
+        <div class="register-modal" id="registerModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="registerOverlay"></div>
+            <!-- 注册内容：注册表单 -->
+            <div class="modal-content register-content">
+                <!-- 关闭按钮：关闭注册弹窗 -->
+                <button class="modal-close" id="registerClose">&times;</button>
+                <!-- 注册标题 -->
+                <h2>用户注册</h2>
+                <!-- 注册表单 -->
+                <form id="registerForm">
+                    <!-- 用户名输入组 -->
+                    <div class="form-group">
+                        <label for="registerUsername">用户名</label>
+                        <input type="text" id="registerUsername" name="username" required maxlength="16" placeholder="中英文均可，最多16字符">
+                        <span class="form-hint">中英文均可，最多16字符</span>
+                    </div>
+                    <!-- 邮箱输入组 -->
+                    <div class="form-group">
+                        <label for="registerEmail">邮箱</label>
+                        <div class="email-input-group">
+                            <input type="email" id="registerEmail" name="email" required placeholder="请输入邮箱">
+                            <button type="button" class="send-verification-btn" id="sendVerificationBtn">发送验证码</button>
+                        </div>
+                    </div>
+                    <!-- 验证码输入组 -->
+                    <div class="form-group">
+                        <label for="registerVerificationCode">验证码</label>
+                        <input type="text" id="registerVerificationCode" name="verificationCode" required placeholder="请输入6位验证码" maxlength="6" pattern="\d{6}">
+                        <span class="form-hint">请输入邮箱收到的6位验证码</span>
+                    </div>
+                    <!-- 密码输入组 -->
+                    <div class="form-group">
+                        <label for="registerPassword">密码</label>
+                        <input type="password" id="registerPassword" name="password" required minlength="8" maxlength="16" placeholder="8-16位，包含大小写字母">
+                        <span class="form-hint">8-16位，必须包含大小写字母</span>
+                    </div>
+                    <!-- 确认密码输入组 -->
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">确认密码</label>
+                        <input type="password" id="registerConfirmPassword" name="confirmPassword" required placeholder="请再次输入密码">
+                    </div>
+                    <!-- 头像选择 -->
+                    <div class="form-group">
+                        <label>选择头像</label>
+                        <div class="avatar-selection">
+                            <div class="avatar-option" data-avatar="blue" onclick="selectAvatar('blue')">
+                                <div class="avatar-preview blue-smile">😊</div>
+                            </div>
+                            <div class="avatar-option" data-avatar="yellow" onclick="selectAvatar('yellow')">
+                                <div class="avatar-preview yellow-smile">😊</div>
+                            </div>
+                            <div class="avatar-option" data-avatar="green" onclick="selectAvatar('green')">
+                                <div class="avatar-preview green-smile">😊</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="registerAvatar" name="avatar" value="blue">
+                    </div>
+                    <!-- 注册提交按钮 -->
+                    <button type="submit" class="submit-btn">注册</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 账号设置弹窗：修改用户信息 -->
+        <div class="account-settings-modal" id="accountSettingsModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="accountSettingsOverlay"></div>
+            <!-- 账号设置内容：用户信息表单 -->
+            <div class="modal-content account-settings-content">
+                <!-- 关闭按钮：关闭账号设置弹窗 -->
+                <button class="modal-close" id="accountSettingsClose">&times;</button>
+                <!-- 账号设置标题 -->
+                <h2>账号设置</h2>
+                <!-- 账号设置表单 -->
+                <form id="accountSettingsForm">
+                    <!-- 用户名显示组（只读） -->
+                    <div class="form-group">
+                        <label for="settingsUsername">用户名</label>
+                        <input type="text" id="settingsUsername" name="username" readonly>
+                    </div>
+                    <!-- 邮箱输入组 -->
+                    <div class="form-group">
+                        <label for="settingsEmail">邮箱</label>
+                        <input type="email" id="settingsEmail" name="email" placeholder="请输入邮箱">
+                    </div>
+                    <!-- 新密码输入组 -->
+                    <div class="form-group">
+                        <label for="settingsNewPassword">新密码</label>
+                        <input type="password" id="settingsNewPassword" name="newPassword" placeholder="留空则不修改密码">
+                    </div>
+                    <!-- 确认密码输入组 -->
+                    <div class="form-group">
+                        <label for="settingsConfirmPassword">确认密码</label>
+                        <input type="password" id="settingsConfirmPassword" name="confirmPassword" placeholder="请再次输入新密码">
+                    </div>
+                    <!-- 头像选择 -->
+                    <div class="form-group">
+                        <label>更换头像</label>
+                        <div class="avatar-selection">
+                            <div class="avatar-option" data-avatar="blue" onclick="selectSettingsAvatar('blue')">
+                                <div class="avatar-preview blue-smile">😊</div>
+                            </div>
+                            <div class="avatar-option" data-avatar="yellow" onclick="selectSettingsAvatar('yellow')">
+                                <div class="avatar-preview yellow-smile">😊</div>
+                            </div>
+                            <div class="avatar-option" data-avatar="green" onclick="selectSettingsAvatar('green')">
+                                <div class="avatar-preview green-smile">😊</div>
+                            </div>
+                            <div class="avatar-option" data-avatar="custom" onclick="document.getElementById('customAvatarInput').click()">
+                                <div class="avatar-preview custom-avatar-btn">
+                                    <span class="custom-icon">📷</span>
+                                    <span class="custom-text">自定义</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="settingsAvatar" name="avatar" value="">
+                        <input type="file" id="customAvatarInput" accept="image/*" style="display: none;" onchange="handleCustomAvatar(this)">
+                    </div>
+                    <!-- 保存按钮 -->
+                    <button type="submit" class="submit-btn">保存</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载历史事件数据 -->
+    <script src="data/events.js"></script>
+    <!-- 加载人物档案数据 -->
+    <script src="data/characters.js"></script>
+    <!-- 加载主逻辑脚本（优化版） -->
+    <script src="timeline-optimized.js"></script>
+    <!-- Service Worker 注册脚本：实现离线支持 -->
+    <script>
+        // 检查浏览器是否支持 Service Worker
+        // 注意：service-worker.js 文件不存在，暂时禁用
+        /*
+        if ('serviceWorker' in navigator) {
+            // 页面加载完成后注册 Service Worker
+            window.addEventListener('load', () => {
+                // 注册 service-worker.js 文件
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        // 注册成功，输出日志
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(error => {
+                        // 注册失败，输出错误信息
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+        */
+    </script>
 </body>
 </html>
