@@ -1,87 +1,48 @@
-# GitHub + Render 部署执行指南
+# GitHub Pages + Vercel 部署执行指南
 
 ## 📋 执行步骤概览
 
-本指南详细说明如何将 timeline-app 项目部署到 Render，实现免费使用自定义域名。
+本指南详细说明如何将 timeline-app 项目部署到 GitHub Pages（前端）和 Vercel（后端），实现免费部署。
 
 ---
 
-## 步骤 1：注册 Render 账号（5 分钟）
+## 步骤 1：检查 GitHub Pages 配置（5 分钟）
 
-### 1.1 访问 Render 网站
+### 1.1 访问 GitHub 仓库
 
-1. 打开浏览器，访问：https://render.com
-2. 点击右上角的 **Sign Up** 按钮
-3. 选择注册方式：
-   - **推荐**：使用 GitHub 账号登录
-   - 或者：使用邮箱注册
+1. 打开浏览器，访问：https://github.com/californiafinch/timeline-app
+2. 点击 **Settings** 标签
 
-### 1.2 完成注册流程
+### 1.2 检查 GitHub Pages 设置
 
-1. 填写注册信息：
-   - 用户名
-   - 邮箱
-   - 密码
+1. 滚动到 **Pages** 部分
+2. 确认以下配置：
+   - **Source**：`Deploy from a branch`
+   - **Branch**：`main` / `root`
+   - **Status**：已启用
 
-2. 验证邮箱（如果使用邮箱注册）
-3. 设置密码
-
-4. 完成注册
+**注意**：
+- GitHub Pages 应该已经启用
+- 如果未启用，点击 **Save** 启用
+- 默认访问 URL：`https://californiafinch.github.io/timeline-app/`
 
 ---
 
-## 步骤 2：创建新的 Web Service（10 分钟）
+## 步骤 2：配置 Vercel 环境变量（10 分钟）
 
-### 2.1 进入 Render Dashboard
+### 2.1 访问 Vercel Dashboard
 
-1. 注册完成后，会自动跳转到 Dashboard
-2. 点击左侧菜单的 **Web Services**
+1. 打开浏览器，访问：https://vercel.com/dashboard
+2. 登录您的 Vercel 账号（使用 GitHub 登录）
+3. 找到项目：`timeline-app-one`
 
-### 2.2 创建新服务
+### 2.2 进入项目设置
 
-1. 点击 **New +** 按钮
-2. 选择 **Web Service**
-3. 输入服务名称：`timeline-app`
-4. 点击 **Create Web Service**
+1. 点击项目名称进入项目详情
+2. 点击顶部菜单的 **Settings** 标签
+3. 在左侧菜单中找到 **Environment Variables**
 
-### 2.3 选择运行时
-
-1. **运行时**：选择 **Node**
-2. **区域**：选择 **Oregon**（或离您最近的区域）
-3. 点击 **Create Web Service**
-
----
-
-## 步骤 3：连接 GitHub 仓库（5 分钟）
-
-### 3.1 进入服务配置页面
-
-1. 创建服务后，会自动跳转到服务配置页面
-2. 找到 **Build & Deploy** 部分
-
-### 3.2 连接 GitHub
-
-1. 点击 **Connect GitHub**
-2. 如果未登录，会跳转到 GitHub 登录页面
-3. 使用 GitHub 账号登录
-4. 授权 Render 访问您的 GitHub 仓库
-
-### 3.3 选择仓库和分支
-
-1. 选择仓库：`californiafinch/timeline-app`
-2. 选择分支：`main`
-3. 点击 **Connect**
-
----
-
-## 步骤 4：配置环境变量（5 分钟）
-
-### 4.1 进入环境变量配置
-
-1. 在服务配置页面，找到 **Environment** 部分
-2. 点击 **Add Environment Variable**
-
-### 4.2 添加环境变量
+### 2.3 添加环境变量
 
 需要添加以下 3 个环境变量：
 
@@ -90,13 +51,14 @@
 | `SUPABASE_URL` | `https://sxjlazmnyrauiqqdjfah.supabase.co` | Supabase 项目 URL |
 | `SUPABASE_KEY` | 从本地 `.env` 文件复制 | Supabase 项目 Key |
 | `JWT_SECRET` | 从本地 `.env` 文件复制 | JWT 签名密钥 |
-| `NODE_ENV` | `production` | 运行环境 |
 
 **添加步骤**：
-1. 在 **Key** 输入框中输入变量名（如 `SUPABASE_URL`）
-2. 在 **Value** 输入框中输入对应的值
-3. 点击 **Save**
-4. 重复以上步骤，添加所有 4 个环境变量
+1. 点击 **Add New** 按钮
+2. 在 **Key** 输入框中输入变量名（如 `SUPABASE_URL`）
+3. 在 **Value** 输入框中输入对应的值
+4. 选择环境：`Production`、`Preview`、`Development`（全部勾选）
+5. 点击 **Save**
+6. 重复以上步骤，添加所有 3 个环境变量
 
 **重要提示**：
 - 从本地 `.env` 文件复制值时，确保复制完整
@@ -105,54 +67,33 @@
 
 ---
 
-## 步骤 5：配置自定义域名（可选，10 分钟）
+## 步骤 3：重新部署 Vercel 应用（5 分钟）
 
-### 5.1 添加自定义域名
+### 3.1 触发重新部署
 
-1. 在服务配置页面，找到 **Custom Domains** 部分
-2. 点击 **Add Domain**
+1. 添加完环境变量后，返回项目详情页
+2. 点击 **Deployments** 标签
+3. 找到最新的部署记录
+4. 点击右侧的 **...** 菜单
+5. 选择 **Redeploy**
 
-### 5.2 输入域名信息
+### 3.2 等待部署完成
 
-1. 输入您的自定义域名（如 `timeline-app.com`）
-2. 点击 **Add Domain**
+1. Vercel 会自动开始重新部署
+2. 部署过程通常需要 1-3 分钟
+3. 部署完成后，状态会变为 **Ready**
 
-### 5.3 配置 DNS（如果使用自定义域名）
+### 3.3 获取访问 URL
 
-1. 添加域名后，Render 会提供 DNS 配置信息
-2. 访问您的域名注册商
-3. 添加以下 DNS 记录：
-
-| 类型 | 名称 | 值 |
-|------|------|------|
-| A | @ | `onrender.com`（Render 提供的服务地址） |
-
-**注意**：
-- 如果使用 Render 提供的默认域名（`timeline-app.onrender.com`），可以跳过此步骤
-- 如果使用自定义域名，需要配置 DNS
+1. 在项目详情页，查看 **Domains** 部分
+2. 默认 URL：`https://timeline-app-one.vercel.app/`
+3. 如果配置了自定义域名，也会显示在这里
 
 ---
 
-## 步骤 6：部署服务（自动）
+## 步骤 4：更新前端 API 基础 URL（10 分钟）
 
-### 6.1 触发部署
-
-1. 配置完环境变量后，Render 会自动检测到更改
-2. 会自动开始部署流程
-3. 部署完成后，会提供访问 URL
-
-### 6.2 获取访问 URL
-
-1. 在服务配置页面，找到 **Domains** 部分
-2. 查看分配的 URL
-3. 默认：`https://timeline-app.onrender.com`
-4. 自定义：您配置的域名
-
----
-
-## 步骤 7：更新前端 API 基础 URL（10 分钟）
-
-### 7.1 修改 timeline-optimized.js
+### 4.1 修改 timeline-optimized.js
 
 打开文件：`timeline-optimized.js`
 
@@ -165,10 +106,10 @@ const API_BASE_URL = 'http://localhost:3000/api';
 修改为：
 
 ```javascript
-const API_BASE_URL = 'https://timeline-app.onrender.com/api';
+const API_BASE_URL = 'https://timeline-app-one.vercel.app/api';
 ```
 
-### 7.2 更新所有 API 调用
+### 4.2 更新所有 API 调用
 
 需要修改以下 API 调用：
 
@@ -204,62 +145,34 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 - 只需要修改 `API_BASE_URL` 变量
 - 其他代码不需要修改
 
-### 7.3 测试本地服务器
+### 4.3 提交并推送更改
 
-1. 启动本地服务器
+1. 保存文件
+2. 提交更改到 Git：
    ```bash
-   node server.js
+   git add timeline-optimized.js
+   git commit -m "更新 API 基础 URL 为 Vercel"
+   git push origin main
    ```
-
-2. 访问：http://localhost:3000
-3. 测试所有功能是否正常
+3. 等待 GitHub Actions 自动部署
 
 ---
 
-## 步骤 8：配置 GitHub Pages 自动部署（10 分钟）
+## 步骤 5：测试和验证（15 分钟）
 
-### 8.1 访问 GitHub 仓库
-
-1. 访问：https://github.com/californiafinch/timeline-app
-2. 点击 **Settings**
-
-### 8.2 启用 GitHub Pages
-
-1. 滚动到 **Pages** 部分
-2. 点击 **Source**
-3. 选择 **Deploy from a branch**
-4. 选择分支：`main`
-5. 点击 **Save**
-
-**注意**：
-- GitHub Pages 会自动部署 `main` 分支
-- 默认访问 URL：`https://californiafinch.github.io/timeline-app/`
-
-### 8.3 配置自定义域名（可选）
-
-如果使用自定义域名，需要：
-
-1. 在 **Pages** 设置中，找到 **Custom domain**
-2. 输入您的自定义域名（如 `timeline-app.com`）
-3. 点击 **Save**
-
----
-
-## 步骤 9：测试和验证（15 分钟）
-
-### 9.1 测试 GitHub Pages
+### 5.1 测试 GitHub Pages
 
 1. 访问：`https://californiafinch.github.io/timeline-app/`
 2. 测试前端页面是否正常加载
-3. 测试所有功能是否正常
+3. 检查控制台是否有错误
 
-### 9.2 测试 Render 后端
+### 5.2 测试 Vercel 后端
 
-1. 访问：`https://timeline-app.onrender.com/`
+1. 访问：`https://timeline-app-one.vercel.app/`
 2. 测试 API 端点是否正常
 3. 测试用户注册、登录、收藏功能
 
-### 9.3 性能测试
+### 5.3 性能测试
 
 1. 使用浏览器开发者工具（F12）
 2. 查看 **Network** 标签页
@@ -274,23 +187,36 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 
 | 平台 | URL | 说明 |
 |------|------|------|
-| **GitHub Pages** | `https://californiafinch.github.io/timeline-app/` 或自定义域名 | 静态前端 |
-| **Render** | `https://timeline-app.onrender.com/` 或自定义域名 | Node.js 后端 + API |
+| **GitHub Pages** | `https://californiafinch.github.io/timeline-app/` | 静态前端 |
+| **Vercel** | `https://timeline-app-one.vercel.app/` | Node.js 后端 + API |
 
 ### 性能对比
 
-| 指标 | Vercel | GitHub Pages + Render |
-|--------|----------------|--------|
-| **前端加载** | 中等 | 快（全球 CDN） |
-| **API 响应** | 中等 | 快（Render 优化） |
-| **数据库查询** | 中等 | 快（已优化） |
-| **整体性能** | 中等 | 优秀 |
+| 指标 | 本地开发 | GitHub Pages + Vercel |
+|--------|----------|--------|
+| **前端加载** | 快 | 快（全球 CDN） |
+| **API 响应** | 快 | 快（Vercel 优化） |
+| **数据库查询** | 快 | 快（已优化） |
+| **整体性能** | 优秀 | 优秀 |
 
 ---
 
 ## 🔧 故障排除
 
-### Render 部署失败
+### GitHub Pages 部署失败
+
+**可能原因**：
+1. 工作流失败
+   - 检查 `.github/workflows/deploy-gh-pages.yml` 语法
+   - 检查 GitHub Token 是否正确配置
+   - 检查 permissions 设置
+
+2. 部署失败
+   - 查看部署日志
+   - 检查文件是否正确复制
+   - 确认分支设置正确
+
+### Vercel 部署失败
 
 **可能原因**：
 1. 构建失败
@@ -300,21 +226,12 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 2. 环境变量未设置
    - 检查所有环境变量是否正确配置
    - 检查变量名称是否正确
+   - 确认环境变量已保存
 
 3. 数据库连接失败
    - 检查 Supabase URL 和 Key 是否正确
    - 检查 Supabase 项目是否正常
-
-### GitHub Pages 部署失败
-
-**可能原因**：
-1. 工作流失败
-   - 检查 `.github/workflows/deploy.yml` 语法
-   - 检查 GitHub Token 是否正确配置
-
-2. 部署失败
-   - 查看部署日志
-   - 检查文件是否正确复制
+   - 检查 JWT_SECRET 是否设置
 
 ---
 
@@ -322,19 +239,22 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 
 ### 部署前检查
 
-- [ ] 已注册 Render 账号
-- [ ] 已创建 Web Service
-- [ ] 已连接 GitHub 仓库
-- [ ] 已配置所有环境变量
-- [ ] 已配置自定义域名（如果需要）
+- [x] 已注册 GitHub 账号
+- [x] 已创建 GitHub 仓库
+- [x] 已配置 GitHub Actions 工作流
+- [x] 已修复 GitHub Actions 403 错误
+- [x] 已添加 permissions 和 GITHUB_TOKEN
+- [x] 已推送代码到 GitHub
+- [ ] 已配置 Vercel 环境变量
 - [ ] 已更新前端 API 基础 URL
-- [ ] 已配置 GitHub Pages 自动部署
 - [ ] 已测试本地服务器
 
 ### 部署后检查
 
-- [ ] Render 部署成功
-- [ ] GitHub Pages 部署成功
+- [x] GitHub Actions 工作流配置成功
+- [x] 代码已推送到 GitHub
+- [ ] GitHub Pages 部署成功（等待 Actions 完成）
+- [ ] Vercel 部署成功
 - [ ] 可以访问前端 URL
 - [ ] 可以访问后端 API
 - [ ] 用户注册功能正常
@@ -368,15 +288,13 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 
 | 步骤 | 预计时间 | 累计时间 |
 |------|----------|--------|
-| 注册 Render 账号 | 5 分钟 | 5 分钟 |
-| 创建 Web Service | 10 分钟 | 15 分钟 |
-| 连接 GitHub | 5 分钟 | 20 分钟 |
-| 配置环境变量 | 5 分钟 | 25 分钟 |
-| 更新前端代码 | 10 分钟 | 35 分钟 |
-| 配置 GitHub Pages | 10 分钟 | 45 分钟 |
-| 测试和验证 | 15 分钟 | 60 分钟 |
+| 检查 GitHub Pages 配置 | 5 分钟 | 5 分钟 |
+| 配置 Vercel 环境变量 | 10 分钟 | 15 分钟 |
+| 重新部署 Vercel 应用 | 5 分钟 | 20 分钟 |
+| 更新前端 API 基础 URL | 10 分钟 | 30 分钟 |
+| 测试和验证 | 15 分钟 | 45 分钟 |
 
-**总计**：60-90 分钟
+**总计**：45-60 分钟
 
 ---
 
@@ -396,14 +314,12 @@ const response = await fetch(`${API_BASE_URL}/api/register`, {
 现在请按照上述步骤开始执行部署！
 
 **快速开始**：
-1. 访问：https://render.com
-2. 注册账号并创建服务
-3. 连接 GitHub 仓库
-4. 配置环境变量
-5. 更新前端代码
-6. 配置 GitHub Pages
-7. 测试所有功能
+1. 检查 GitHub Pages 配置
+2. 配置 Vercel 环境变量
+3. 重新部署 Vercel 应用
+4. 更新前端 API 基础 URL
+5. 测试所有功能
 
-**预计完成时间**：60-90 分钟
+**预计完成时间**：45-60 分钟
 
 祝您部署顺利！🎉
