@@ -1,0 +1,40 @@
+name: Deploy to gh-pages branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to gh-pages branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 创建 timeline-app 子目录
+          mkdir -p timeline-app
+          
+          # 只复制 timeline 相关文件到子目录
+          cp timeline.html timeline-app/
+          cp timeline.css timeline-app/
+          cp timeline-optimized.js timeline-app/
+          cp mobile.css timeline-app/
+          cp -r data/ timeline-app/
+          
+          # 复制 API 相关文件（如果需要）
+          # cp server.js timeline-app/
+          # cp supabase.js timeline-app/
+          # cp api/ timeline-app/
+          
+          # 提交并推送
+          git add timeline-app/
+          git commit -m "Deploy timeline app to subdirectory"
+          git push origin gh-pages --force
