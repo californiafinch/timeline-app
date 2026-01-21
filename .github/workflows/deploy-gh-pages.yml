@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +29,7 @@ jobs:
           cp timeline.css timeline-app/
           cp timeline-optimized.js timeline-app/
           cp mobile.css timeline-app/
-          cp data/ timeline-app/
+          cp -r data/ timeline-app/
           
           # 复制 API 相关文件（如果需要）
           # cp server.js timeline-app/
@@ -38,3 +40,5 @@ jobs:
           git add timeline-app/
           git commit -m "Deploy timeline app to subdirectory"
           git push origin gh-pages --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
