@@ -389,10 +389,17 @@ const TimelineApp = {
             }
         },
         
-        async register(username, password, email, avatar) {
+        async register(username, password, email, avatar, verificationCode) {
             return this.apiRequest('/register', {
                 method: 'POST',
-                body: JSON.stringify({ username, password, email, avatar })
+                body: JSON.stringify({ username, password, email, avatar, verificationCode })
+            });
+        },
+
+        async sendVerification(email) {
+            return this.apiRequest('/send-verification', {
+                method: 'POST',
+                body: JSON.stringify({ email })
             });
         },
         
@@ -861,6 +868,7 @@ const TimelineApp = {
         document.getElementById('registerClose').addEventListener('click', () => this.hideRegisterModal());
         document.getElementById('registerOverlay').addEventListener('click', () => this.hideRegisterModal());
         document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
+        document.getElementById('sendVerificationBtn').addEventListener('click', () => this.handleSendVerification());
         
         document.getElementById('accountSettingsClose').addEventListener('click', () => this.hideAccountSettings());
         document.getElementById('accountSettingsOverlay').addEventListener('click', () => this.hideAccountSettings());
@@ -1019,6 +1027,49 @@ const TimelineApp = {
         console.log('logout 完成');
     },
     
+    async handleSendVerification() {
+        const email = document.getElementById('registerEmail').value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email || !emailRegex.test(email)) {
+            this.toast.warning('邮箱错误', '请输入正确的邮箱格式');
+            return;
+        }
+        
+        const sendBtn = document.getElementById('sendVerificationBtn');
+        
+        if (sendBtn.disabled) {
+            return;
+        }
+        
+        try {
+            sendBtn.disabled = true;
+            sendBtn.textContent = '发送中...';
+            
+            await this.storage.sendVerification(email);
+            
+            this.toast.success('验证码已发送', '请检查您的邮箱');
+            
+            let countdown = 60;
+            sendBtn.textContent = `${countdown}秒后重发`;
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = '发送验证码';
+                } else {
+                    sendBtn.textContent = `${countdown}秒后重发`;
+                }
+            }, 1000);
+        } catch (error) {
+            this.toast.error('发送失败', error.message || '发送验证码失败，请重试');
+            sendBtn.disabled = false;
+            sendBtn.textContent = '发送验证码';
+        }
+    },
+    
     async handleRegister(e) {
         e.preventDefault();
         
@@ -1027,6 +1078,7 @@ const TimelineApp = {
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('registerConfirmPassword').value;
         const avatar = document.getElementById('registerAvatar').value;
+        const verificationCode = document.getElementById('registerVerificationCode').value.trim();
         
         if (!username || username.length > 16) {
             this.toast.warning('用户名错误', '用户名不能为空且最多16个字符');
@@ -1056,9 +1108,20 @@ const TimelineApp = {
             return;
         }
         
+        if (!verificationCode) {
+            this.toast.warning('验证码错误', '请输入验证码');
+            return;
+        }
+        
+        const otpRegex = /^\d{6}$/;
+        if (!otpRegex.test(verificationCode)) {
+            this.toast.warning('验证码错误', '验证码必须是6位数字');
+            return;
+        }
+        
         try {
             this.showLoading('正在注册...');
-            const data = await this.storage.register(username, password, email, avatar);
+            const data = await this.storage.register(username, password, email, avatar, verificationCode);
             
             if (data.user) {
                 this.toast.success('注册成功', '注册成功！请登录');

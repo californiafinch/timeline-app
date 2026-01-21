@@ -1388,3 +1388,51 @@ body {
         font-size: 13px;
     }
 }
+
+/* 邮箱输入组：弹性布局 */
+.email-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+/* 邮箱输入组中的输入框 */
+.email-input-group input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 发送验证码按钮 */
+.send-verification-btn {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #4a90e2, #9013fe);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+/* 发送验证码按钮悬停效果 */
+.send-verification-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #357abd, #6b0eb8);
+    transform: scale(1.02);
+}
+
+/* 发送验证码按钮禁用状态 */
+.send-verification-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 验证码输入框 */
+#registerVerificationCode {
+    letter-spacing: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}

@@ -18,12 +18,15 @@ if (!SECRET_KEY) {
 
 // 懒加载 Supabase 客户端
 let supabase = null;
+let supabaseAuth = null;
 
 function getSupabaseClient() {
     if (!supabase) {
-        supabase = require('./supabase');
+        const clients = require('./supabase');
+        supabase = clients.supabase;
+        supabaseAuth = clients.supabaseAuth;
     }
-    return supabase;
+    return { supabase, supabaseAuth };
 }
 
 // 查询缓存
@@ -140,7 +143,9 @@ app.post('/api/send-verification', async (req, res) => {
             return res.status(400).json({ error: '邮箱格式不正确' });
         }
 
-        const { data, error } = await supabase.auth.signInWithOtp({
+        const { supabase, supabaseAuth } = getSupabaseClient();
+
+        const { data, error } = await supabaseAuth.auth.signInWithOtp({
             email
         });
 
@@ -190,6 +195,8 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: '密码必须包含至少一位大写字母和一位小写字母' });
         }
 
+        const { supabase, supabaseAuth } = getSupabaseClient();
+
         // 验证邮箱验证码（如果提供了邮箱）
         if (email) {
             if (!verificationCode) {
@@ -203,7 +210,7 @@ app.post('/api/register', async (req, res) => {
             }
 
             // 使用 Supabase Auth 验证 OTP
-            const { data: otpData, error: otpError } = await supabase.auth.verifyOtp({
+            const { data: otpData, error: otpError } = await supabaseAuth.auth.verifyOtp({
                 email,
                 token: verificationCode,
                 type: 'email'
