@@ -152,10 +152,19 @@ const TimelineApp = {
         
         // 用户登录
         async login(username, password) {
-            const data = await this.apiRequest('/login', {
+            const response = await fetch(`${this.apiBaseUrl}/login`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ username, password })
             });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '请求失败');
+            }
             
             if (data.token) {
                 this.setToken(data.token);
@@ -717,9 +726,9 @@ const TimelineApp = {
 
     // 处理登录
     async handleLogin(e) {
-        e.preventDefault(); // 阻止表单默认提交行为
-        const username = document.getElementById('username').value; // 获取用户名
-        const password = document.getElementById('password').value; // 获取密码
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
         
         if (!username || !password) {
             alert('请输入用户名和密码');
@@ -727,21 +736,23 @@ const TimelineApp = {
         }
         
         try {
-            const data = await this.storage.login(username, password); // 调用后端登录API
+            const data = await this.storage.login(username, password);
             
             console.log('登录成功，用户数据:', data.user);
             
             if (data.user) {
-                this.isLoggedIn = true; // 设置登录状态为 true
-                this.currentUser = data.user; // 保存当前用户信息
+                this.isLoggedIn = true;
+                this.currentUser = data.user;
                 console.log('当前用户:', this.currentUser);
                 console.log('用户头像:', this.currentUser.avatar);
-                this.updateUserDisplay(); // 更新用户显示
-                this.hideLoginModal(); // 隐藏登录弹窗
-                this.loadFavoritesFromServer(); // 从服务器加载收藏
+                this.updateUserDisplay();
+                this.hideLoginModal();
+                this.loadFavoritesFromServer();
             }
         } catch (error) {
-            alert(error.message || '登录失败，请重试');
+            console.error('登录失败:', error);
+            const errorMessage = error.message || '登录失败，请重试';
+            alert(errorMessage);
         }
     },
 

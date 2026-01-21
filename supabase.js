@@ -12,30 +12,30 @@ if (!supabaseUrl || !supabaseKey) {
         from: () => ({
             select: () => ({
                 eq: () => ({
-                    then: (resolve) => resolve({ data: [], error: null })
+                    single: () => Promise.resolve({ data: null, error: null })
                 })
             }),
             insert: () => ({
                 select: () => ({
-                    then: (resolve) => resolve({ data: null, error: new Error('Supabase not configured') })
+                    single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') })
                 })
             }),
             update: () => ({
                 eq: () => ({
-                    then: (resolve) => resolve({ data: null, error: new Error('Supabase not configured') })
+                    select: () => ({
+                        single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') })
+                    })
                 })
             }),
             delete: () => ({
-                eq: () => ({
-                    then: (resolve) => resolve({ error: null })
-                })
+                eq: () => Promise.resolve({ error: null })
             })
         })
     };
     supabaseAuth = {
         auth: {
-            signInWithOtp: () => ({ data: null, error: new Error('Supabase not configured') }),
-            verifyOtp: () => ({ data: null, error: new Error('Supabase not configured') })
+            signInWithOtp: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
+            verifyOtp: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') })
         }
     };
 } else {

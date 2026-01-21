@@ -263,6 +263,7 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: '用户名和密码不能为空' });
         }
 
+        const { supabase } = getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, password, email, avatar')
@@ -318,6 +319,7 @@ app.get('/api/user', async (req, res) => {
             return res.json(cached);
         }
         
+        const { supabase } = getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, email, avatar')
@@ -360,6 +362,7 @@ app.put('/api/user', async (req, res) => {
             updateData.avatar = avatar;
         }
 
+        const { supabase } = getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
             .update(updateData)
@@ -397,6 +400,7 @@ app.get('/api/favorites', async (req, res) => {
             return res.json(cached);
         }
         
+        const { supabase } = getSupabaseClient();
         const { data: favorites, error } = await supabase
             .from('favorites')
             .select('id, type, item_id')
@@ -432,6 +436,7 @@ app.post('/api/favorites', async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         const { type, id } = req.body;
 
+        const { supabase } = getSupabaseClient();
         const { data: existingFavorite, error: checkError } = await supabase
             .from('favorites')
             .select('id')
@@ -482,6 +487,7 @@ app.delete('/api/favorites', async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         const { type, id } = req.body;
 
+        const { supabase } = getSupabaseClient();
         const { error } = await supabase
             .from('favorites')
             .delete()

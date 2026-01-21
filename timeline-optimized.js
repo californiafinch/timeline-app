@@ -404,10 +404,19 @@ const TimelineApp = {
         },
         
         async login(username, password) {
-            const data = await this.apiRequest('/login', {
+            const response = await fetch(`${this.apiBaseUrl}/login`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ username, password })
             });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '请求失败');
+            }
             
             if (data.token) {
                 this.setToken(data.token);
