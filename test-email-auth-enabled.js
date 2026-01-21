@@ -22,12 +22,11 @@ async function testEmailAuth() {
         output: process.stdout
     });
 
-    rl.question('请输入测试邮箱地址: ', async (email) => {
+    rl.question('请输入测试邮箱地址 (默认: california_finch@outlook.com): ', async (email) => {
         rl.close();
 
         if (!email) {
-            console.log('❌ 未输入邮箱地址');
-            process.exit(1);
+            email = 'california_finch@outlook.com';
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
