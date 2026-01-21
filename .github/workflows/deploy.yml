@@ -24,9 +24,12 @@ jobs:
           # 只复制 timeline 相关文件
           cp timeline.html index.html
           
+          # 确保文件有变化（添加时间戳）
+          touch index.html
+          
           # 提交并推送
           git add index.html
-          git commit -m "Deploy to GitHub Pages"
-          git push origin gh-pages --force
+          git commit -m "Deploy to GitHub Pages" || echo "No changes to commit"
+          git push origin gh-pages --force || echo "Push failed"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
