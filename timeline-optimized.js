@@ -41,6 +41,10 @@ const TimelineApp = {
             this.setupEventListeners();
             this.loadFavorites();
             this.hideLoading();
+            
+            // 检查登录状态并初始化界面
+            await this.checkLoginStateAndInit();
+            
             console.log('应用初始化完成');
         } catch (error) {
             console.error('初始化失败:', error);
