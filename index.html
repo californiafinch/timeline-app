@@ -5,10 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline App</title>
     <script>
-        window.location.href = 'timeline.html';
+        // 检测当前路径并自动跳转到相应页面
+        const currentPath = window.location.pathname;
+        
+        // 如果访问主域名或根目录，重定向到 timeline-app 子目录
+        if (currentPath === '/' || currentPath === '/index.html') {
+            window.location.href = '/timeline-app/';
+        } 
+        // 如果访问 timeline-app 子目录，重定向到 timeline.html
+        else if (currentPath === '/timeline-app/' || currentPath === '/timeline-app/index.html') {
+            window.location.href = '/timeline-app/timeline.html';
+        }
+        // 如果访问 timeline.html，保持不变
+        else if (currentPath === '/timeline.html' || currentPath === '/timeline-app/timeline.html') {
+            // 不做任何操作，让页面正常加载
+        }
     </script>
 </head>
 <body>
-    <p>正在重定向到时间轴页面...</p>
+    <p>正在重定向...</p>
 </body>
 </html>
