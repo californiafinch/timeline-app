@@ -24,20 +24,24 @@ body {
 
 /* 固定顶部栏：固定在页面最顶部，包含标题和控制按钮 */
 .fixed-nav-bar {
-    position: fixed; /* 固定定位 */
-    top: 0; /* 固定在顶部 */
-    left: 0; /* 左侧对齐 */
-    right: 0; /* 右侧对齐 */
-    background: linear-gradient(135deg, #4a90e2, #9013fe); /* 渐变背景 */
-    color: white; /* 白色文字 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-    z-index: 1000; /* 高层级，确保在最上层 */
-    padding: 10px 20px; /* 内边距 */
-    display: flex; /* 弹性布局 */
-    align-items: center; /* 垂直居中 */
-    justify-content: space-between; /* 两端对齐 */
-    gap: 20px; /* 子元素间距 */
-    flex-wrap: wrap; /* 允许换行 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #4a90e2, #9013fe);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.fixed-nav-bar.hidden {
+    display: none;
 }
 
 /* 头部样式：标题和副标题居中显示 */
@@ -204,6 +208,68 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 100;
     display: none;
+}
+
+/* 未登录提示样式 */
+.no-login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: white;
+    z-index: 1000;
+    display: none;
+}
+
+.no-login-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.no-login-icon {
+    font-size: 64px;
+    margin-bottom: 10px;
+}
+
+.no-login h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.no-login p {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+}
+
+.login-now-btn {
+    margin-top: 10px;
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-now-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.login-now-btn:active {
+    transform: translateY(0);
 }
 
 /* 搜索结果为空提示文本样式 */
@@ -597,6 +663,18 @@ body {
     margin-bottom: 20px; /* 底部外边距 */
 }
 
+/* 人物分类标签 */
+.character-category {
+    display: inline-block;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
 /* 人物信息区块：底部外边距 */
 .character-section {
     margin-bottom: 20px; /* 底部外边距 */
@@ -683,8 +761,56 @@ body {
 
 /* 表单输入框聚焦效果：蓝色边框 */
 .form-group input:focus {
-    outline: none; /* 无轮廓 */
-    border-color: #4a90e2; /* 蓝色边框 */
+    outline: none;
+    border-color: #4a90e2;
+}
+
+/* 密码输入框包装器 */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    padding-right: 45px;
+}
+
+/* 密码切换按钮 */
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.password-toggle-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle-btn .eye-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+    color: #999;
+    transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover .eye-icon {
+    color: #4a90e2;
 }
 
 /* 提交按钮：渐变背景 */
@@ -879,7 +1005,29 @@ body {
 
 /* 注册弹窗显示状态 */
 .register-modal.active {
-    display: block; /* 显示弹窗 */
+    display: block;
+}
+
+/* 忘记密码弹窗 */
+.forgot-password-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 1000;
+}
+
+/* 忘记密码弹窗显示状态 */
+.forgot-password-modal.active {
+    display: block;
+}
+
+/* 忘记密码内容：居中显示 */
+.forgot-password-content {
+    max-width: 500px;
+    margin: 50px auto;
 }
 
 /* 注册内容：居中显示 */
@@ -904,8 +1052,26 @@ body {
 
 /* 注册按钮悬停效果 */
 .register-btn:hover {
-    background: #4a90e2; /* 蓝色背景 */
-    color: white; /* 白色文字 */
+    background: #4a90e2;
+    color: white;
+}
+
+/* 忘记密码按钮 */
+.forgot-password-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-btn:hover {
+    color: #4a90e2;
 }
 
 /* 表单提示文字：灰色小字 */

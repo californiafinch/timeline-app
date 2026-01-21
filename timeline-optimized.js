@@ -13,6 +13,8 @@ const TimelineApp = {
     },
     isShowingFavorites: false,
     isShowingCharacterFromFavorites: false,
+    passwordErrorCount: {},
+    isPasswordVisible: false,
     
     // 性能优化：虚拟滚动配置
     virtualScroll: {
@@ -36,7 +38,6 @@ const TimelineApp = {
             await this.loadEvents();
             await this.loadCharacters();
             this.setupVirtualScroll();
-            this.renderTimeline();
             this.setupEventListeners();
             this.loadFavorites();
             this.hideLoading();
@@ -47,6 +48,37 @@ const TimelineApp = {
             this.toast.error('初始化失败', '应用初始化失败，请刷新页面重试');
         }
     },
+
+    // 检查登录状态并初始化界面
+    async checkLoginStateAndInit() {
+        const token = this.storage.getToken();
+        if (token) {
+            try {
+                const user = await Promise.race([
+                    this.storage.getUser(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('登录状态检查超时')), 5000))
+                ]);
+                this.isLoggedIn = true;
+                this.currentUser = user;
+                this.updateUserDisplay();
+                this.loadFavoritesFromServer();
+                this.renderTimeline();
+                this.showTimelineContent();
+            } catch (error) {
+                console.error('检查登录状态错误:', error);
+                this.storage.clearToken();
+                this.isLoggedIn = false;
+                this.currentUser = null;
+                this.updateUserDisplay();
+                this.hideTimelineContent();
+            }
+        } else {
+            this.isLoggedIn = false;
+            this.currentUser = null;
+            this.updateUserDisplay();
+            this.hideTimelineContent();
+        }
+    },
     
     // 缓存DOM元素
     cacheDOMElements() {
@@ -54,6 +86,7 @@ const TimelineApp = {
             timeline: document.getElementById('timeline'),
             searchInput: document.getElementById('searchInput'),
             categoryFilter: document.getElementById('categoryFilter'),
+            characterCategoryFilter: document.getElementById('characterCategoryFilter'),
             zoomLevel: document.getElementById('zoomLevel'),
             loginBtn: document.getElementById('loginBtn'),
             userMenu: document.getElementById('userMenu'),
@@ -62,9 +95,13 @@ const TimelineApp = {
             loginModal: document.getElementById('loginModal'),
             registerModal: document.getElementById('registerModal'),
             accountSettingsModal: document.getElementById('accountSettingsModal'),
+            forgotPasswordModal: document.getElementById('forgotPasswordModal'),
             noResults: document.getElementById('noResults'),
             countdownText: document.getElementById('countdownText'),
-            timelineContainer: document.querySelector('.timeline-container')
+            timelineContainer: document.querySelector('.timeline-container'),
+            noLogin: document.getElementById('noLogin'),
+            loginNowBtn: document.getElementById('loginNowBtn'),
+            navBar: document.querySelector('.fixed-nav-bar')
         };
 
         console.log('DOM 元素缓存完成:', Object.keys(this.domCache));
@@ -438,6 +475,13 @@ const TimelineApp = {
             });
         },
         
+        async resetPassword(username, email, newPassword) {
+            return this.apiRequest('/reset-password', {
+                method: 'POST',
+                body: JSON.stringify({ username, email, newPassword })
+            });
+        },
+        
         async getFavorites() {
             return this.apiRequest('/favorites', {
                 method: 'GET'
@@ -682,6 +726,7 @@ const TimelineApp = {
     clearSearch() {
         this.domCache.searchInput.value = '';
         this.domCache.categoryFilter.value = 'all';
+        this.domCache.characterCategoryFilter.value = 'all';
         this.renderTimeline();
     },
     
@@ -819,22 +864,44 @@ const TimelineApp = {
     
     filterEvents() {
         const categoryFilter = this.domCache.categoryFilter.value;
+        const characterCategoryFilter = this.domCache.characterCategoryFilter.value;
         const searchInput = this.domCache.searchInput.value.toLowerCase();
         
         return this.events.filter(event => {
             const matchesCategory = categoryFilter === 'all' || event.category === categoryFilter;
+            
+            let matchesCharacterCategory = true;
+            if (characterCategoryFilter !== 'all' && event.characters) {
+                matchesCharacterCategory = event.characters.some(char => {
+                    const character = this.characters.find(c => c.id === char.id);
+                    return character && character.category === characterCategoryFilter;
+                });
+            }
+            
             const matchesSearch = !searchInput || 
                 event.title.toLowerCase().includes(searchInput) ||
                 event.description.toLowerCase().includes(searchInput) ||
                 (event.characters && event.characters.some(char => 
                     char.name.toLowerCase().includes(searchInput)
                 ));
-            return matchesCategory && matchesSearch;
+            return matchesCategory && matchesCharacterCategory && matchesSearch;
         });
+    },
+    
+    getCategoryName(category) {
+        const categoryNames = {
+            'political': '政治家',
+            'military': '军事家',
+            'scientist': '科学家',
+            'literary': '文学家',
+            'philosopher': '哲学家'
+        };
+        return categoryNames[category] || category;
     },
     
     setupEventListeners() {
         document.getElementById('categoryFilter').addEventListener('change', () => this.renderTimeline());
+        document.getElementById('characterCategoryFilter').addEventListener('change', () => this.renderTimeline());
         
         document.getElementById('searchBtn').addEventListener('click', () => this.renderTimeline());
         document.getElementById('searchInput').addEventListener('keydown', (e) => {
@@ -874,6 +941,20 @@ const TimelineApp = {
         document.getElementById('loginForm').addEventListener('submit', (e) => this.handleLogin(e));
         document.getElementById('showRegisterBtn').addEventListener('click', () => this.showRegisterModal());
         
+        const passwordToggleBtn = document.getElementById('passwordToggleBtn');
+        if (passwordToggleBtn) {
+            passwordToggleBtn.addEventListener('click', () => this.togglePasswordVisibility());
+        }
+        
+        if (this.domCache.loginNowBtn) {
+            this.domCache.loginNowBtn.addEventListener('click', () => this.showLoginModal());
+        }
+        
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        if (forgotPasswordBtn) {
+            forgotPasswordBtn.addEventListener('click', () => this.showForgotPasswordModal());
+        }
+        
         document.getElementById('registerClose').addEventListener('click', () => this.hideRegisterModal());
         document.getElementById('registerOverlay').addEventListener('click', () => this.hideRegisterModal());
         document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
@@ -882,6 +963,10 @@ const TimelineApp = {
         document.getElementById('accountSettingsClose').addEventListener('click', () => this.hideAccountSettings());
         document.getElementById('accountSettingsOverlay').addEventListener('click', () => this.hideAccountSettings());
         document.getElementById('accountSettingsForm').addEventListener('submit', (e) => this.handleAccountSettings(e));
+        
+        document.getElementById('forgotPasswordClose').addEventListener('click', () => this.hideForgotPasswordModal());
+        document.getElementById('forgotPasswordOverlay').addEventListener('click', () => this.hideForgotPasswordModal());
+        document.getElementById('forgotPasswordForm').addEventListener('submit', (e) => this.handleForgotPassword(e));
         
         document.addEventListener('click', (e) => {
             const eventCard = e.target.closest('.event-card');
@@ -982,6 +1067,36 @@ const TimelineApp = {
         this.domCache.loginModal.classList.remove('active');
     },
     
+    showTimelineContent() {
+        const timelineContainer = this.domCache.timelineContainer;
+        const noLogin = this.domCache.noLogin;
+        const navBar = this.domCache.navBar;
+        if (timelineContainer) {
+            timelineContainer.style.display = 'block';
+        }
+        if (noLogin) {
+            noLogin.style.display = 'none';
+        }
+        if (navBar) {
+            navBar.classList.remove('hidden');
+        }
+    },
+    
+    hideTimelineContent() {
+        const timelineContainer = this.domCache.timelineContainer;
+        const noLogin = this.domCache.noLogin;
+        const navBar = this.domCache.navBar;
+        if (timelineContainer) {
+            timelineContainer.style.display = 'none';
+        }
+        if (noLogin) {
+            noLogin.style.display = 'block';
+        }
+        if (navBar) {
+            navBar.classList.add('hidden');
+        }
+    },
+    
     showRegisterModal() {
         this.hideLoginModal();
         this.domCache.registerModal.classList.add('active');
@@ -989,6 +1104,89 @@ const TimelineApp = {
     
     hideRegisterModal() {
         this.domCache.registerModal.classList.remove('active');
+    },
+    
+    showForgotPasswordModal() {
+        this.hideLoginModal();
+        this.domCache.forgotPasswordModal.classList.add('active');
+    },
+    
+    hideForgotPasswordModal() {
+        this.domCache.forgotPasswordModal.classList.remove('active');
+    },
+    
+    async handleForgotPassword(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('forgotUsername').value;
+        const email = document.getElementById('forgotEmail').value;
+        const newPassword = document.getElementById('forgotNewPassword').value;
+        const confirmPassword = document.getElementById('forgotConfirmPassword').value;
+        
+        if (!username || !email || !newPassword || !confirmPassword) {
+            this.toast.warning('输入错误', '请填写所有必填项');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            this.toast.warning('密码错误', '两次输入的密码不一致');
+            return;
+        }
+        
+        if (newPassword.length < 8 || newPassword.length > 16) {
+            this.toast.warning('密码长度错误', '密码长度必须在8-16位之间');
+            return;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.toast.warning('邮箱格式错误', '请输入有效的邮箱地址');
+            return;
+        }
+        
+        try {
+            this.showLoading('正在重置密码...');
+            const result = await this.storage.resetPassword(username, email, newPassword);
+            
+            if (result.success) {
+                this.toast.success('密码重置成功', '密码已重置，请使用新密码登录');
+                this.hideForgotPasswordModal();
+                
+                if (this.passwordErrorCount[username]) {
+                    delete this.passwordErrorCount[username];
+                }
+            } else {
+                this.toast.error('重置失败', result.message || '密码重置失败，请重试');
+            }
+        } catch (error) {
+            console.error('重置密码错误:', error);
+            this.toast.error('重置失败', error.message || '密码重置失败，请重试');
+        } finally {
+            this.hideLoading();
+        }
+    },
+    
+    togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const passwordToggleBtn = document.getElementById('passwordToggleBtn');
+        
+        if (passwordInput && passwordToggleBtn) {
+            this.isPasswordVisible = !this.isPasswordVisible;
+            passwordInput.type = this.isPasswordVisible ? 'text' : 'password';
+            
+            const eyeOpen = passwordToggleBtn.querySelector('.eye-open');
+            const eyeClosed = passwordToggleBtn.querySelector('.eye-closed');
+            
+            if (eyeOpen && eyeClosed) {
+                if (this.isPasswordVisible) {
+                    eyeOpen.style.display = 'none';
+                    eyeClosed.style.display = 'block';
+                } else {
+                    eyeOpen.style.display = 'block';
+                    eyeClosed.style.display = 'none';
+                }
+            }
+        }
     },
     
     async handleLogin(e) {
@@ -1015,12 +1213,29 @@ const TimelineApp = {
                 this.updateUserDisplay();
                 this.hideLoginModal();
                 this.loadFavoritesFromServer();
+                this.renderTimeline();
+                this.showTimelineContent();
+                
+                if (this.passwordErrorCount[username]) {
+                    delete this.passwordErrorCount[username];
+                }
             }
         } catch (error) {
             if (error.message === '用户未注册，请注册新账户再登录') {
                 this.toast.error('用户未注册', '请注册新账户再登录');
             } else if (error.message === '密码错误') {
-                this.toast.error('密码错误', '请检查密码是否正确');
+                if (!this.passwordErrorCount[username]) {
+                    this.passwordErrorCount[username] = 0;
+                }
+                this.passwordErrorCount[username]++;
+                
+                const remainingAttempts = 5 - this.passwordErrorCount[username];
+                
+                if (this.passwordErrorCount[username] >= 5) {
+                    this.toast.error('密码错误次数过多', `您已连续输错5次密码，建议更改密码`);
+                } else {
+                    this.toast.error('密码错误', `密码错误，还剩${remainingAttempts}次尝试机会`);
+                }
             } else {
                 this.toast.error('登录失败', error.message || '登录失败，请重试');
             }
@@ -1039,6 +1254,8 @@ const TimelineApp = {
         console.log('已清除token，准备更新显示');
         this.updateUserDisplay();
         this.hideUserMenu();
+        this.hideTimelineContent();
+        this.showLoginModal();
         console.log('logout 完成');
     },
     
@@ -1576,6 +1793,7 @@ const TimelineApp = {
             <h2>${character.name}</h2>
             <div class="character-title">${character.title}</div>
             <div class="character-dates">${character.birth} - ${character.death}</div>
+            ${character.category ? `<div class="character-category">${this.getCategoryName(character.category)}</div>` : ''}
             <div class="character-bio">${character.description}</div>
             
             ${character.achievements ? `
@@ -1717,7 +1935,7 @@ function showCharacterFromFavorites(charId) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await TimelineApp.init();
-    TimelineApp.checkLoginState().catch(error => {
+    TimelineApp.checkLoginStateAndInit().catch(error => {
         console.error('登录状态检查失败:', error);
     });
 });

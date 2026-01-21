@@ -39,6 +39,15 @@
                     <option value="technology">科技</option>
                     <option value="military">军事</option>
                 </select>
+                <!-- 人物分类筛选器：按政治家、军事家、科学家、文学家、哲学家筛选 -->
+                <select class="filter-select" id="characterCategoryFilter">
+                    <option value="all">全部人物</option>
+                    <option value="political">政治家</option>
+                    <option value="military">军事家</option>
+                    <option value="scientist">科学家</option>
+                    <option value="literary">文学家</option>
+                    <option value="philosopher">哲学家</option>
+                </select>
                 <!-- 搜索输入框容器：始终显示 -->
                 <div class="search-container" id="searchContainer">
                     <!-- 搜索输入框：搜索事件或人物 -->
@@ -91,6 +100,15 @@
 
         <!-- 主内容区：时间轴容器 -->
         <main class="main-content">
+            <!-- 未登录提示：当用户未登录时显示 -->
+            <div class="no-login" id="noLogin">
+                <div class="no-login-content">
+                    <div class="no-login-icon">🔒</div>
+                    <h2>请先登录</h2>
+                    <p>登录后即可浏览历史年表</p>
+                    <button class="login-now-btn" id="loginNowBtn">立即登录</button>
+                </div>
+            </div>
             <!-- 搜索结果为空提示：当搜索不到内容时显示 -->
             <div class="no-results" id="noResults">
                 <p>抱歉，没有找到相关结果。</p>
@@ -140,12 +158,63 @@
                     <!-- 密码输入组 -->
                     <div class="form-group">
                         <label for="password">密码</label>
-                        <input type="password" id="password" name="password" required>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="显示/隐藏密码">
+                                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="eye-icon eye-closed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <!-- 登录提交按钮 -->
                     <button type="submit" class="submit-btn">登录</button>
                     <!-- 注册按钮 -->
                     <button type="button" class="register-btn" id="showRegisterBtn">注册新账户</button>
+                    <!-- 忘记密码链接 -->
+                    <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">忘记密码？</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 忘记密码弹窗：重置密码 -->
+        <div class="forgot-password-modal" id="forgotPasswordModal">
+            <!-- 遮罩层：半透明背景，点击可关闭弹窗 -->
+            <div class="modal-overlay" id="forgotPasswordOverlay"></div>
+            <!-- 忘记密码内容：重置密码表单 -->
+            <div class="modal-content forgot-password-content">
+                <!-- 关闭按钮：关闭忘记密码弹窗 -->
+                <button class="modal-close" id="forgotPasswordClose">&times;</button>
+                <!-- 忘记密码标题 -->
+                <h2>重置密码</h2>
+                <!-- 重置密码表单 -->
+                <form id="forgotPasswordForm">
+                    <!-- 用户名输入组 -->
+                    <div class="form-group">
+                        <label for="forgotUsername">用户名</label>
+                        <input type="text" id="forgotUsername" name="username" required>
+                    </div>
+                    <!-- 邮箱输入组 -->
+                    <div class="form-group">
+                        <label for="forgotEmail">邮箱</label>
+                        <input type="email" id="forgotEmail" name="email" required placeholder="请输入注册时的邮箱">
+                    </div>
+                    <!-- 新密码输入组 -->
+                    <div class="form-group">
+                        <label for="forgotNewPassword">新密码</label>
+                        <input type="password" id="forgotNewPassword" name="newPassword" required minlength="8" maxlength="16" placeholder="8-16位，包含大小写字母">
+                    </div>
+                    <!-- 确认密码输入组 -->
+                    <div class="form-group">
+                        <label for="forgotConfirmPassword">确认密码</label>
+                        <input type="password" id="forgotConfirmPassword" name="confirmPassword" required placeholder="请再次输入新密码">
+                    </div>
+                    <!-- 提交按钮 -->
+                    <button type="submit" class="submit-btn">重置密码</button>
                 </form>
             </div>
         </div>
