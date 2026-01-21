@@ -31,11 +31,6 @@ jobs:
           cp mobile.css timeline-app/
           cp -r data/ timeline-app/
           
-          # 复制 API 相关文件（如果需要）
-          # cp server.js timeline-app/
-          # cp supabase.js timeline-app/
-          # cp api/ timeline-app/
-          
           # 提交并推送
           git add timeline-app/
           git commit -m "Deploy timeline app to subdirectory"
