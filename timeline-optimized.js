@@ -1008,7 +1008,13 @@ const TimelineApp = {
                 this.loadFavoritesFromServer();
             }
         } catch (error) {
-            this.toast.error('登录失败', error.message || '登录失败，请重试');
+            if (error.message === '用户未注册，请注册新账户再登录') {
+                this.toast.error('用户未注册', '请注册新账户再登录');
+            } else if (error.message === '密码错误') {
+                this.toast.error('密码错误', '请检查密码是否正确');
+            } else {
+                this.toast.error('登录失败', error.message || '登录失败，请重试');
+            }
         } finally {
             this.hideLoading();
         }

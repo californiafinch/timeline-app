@@ -270,12 +270,12 @@ app.post('/api/login', async (req, res) => {
             .single();
 
         if (error || !user) {
-            return res.status(401).json({ error: '用户名或密码错误' });
+            return res.status(404).json({ error: '用户未注册，请注册新账户再登录' });
         }
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
-            return res.status(401).json({ error: '用户名或密码错误' });
+            return res.status(401).json({ error: '密码错误' });
         }
 
         const token = jwt.sign(
