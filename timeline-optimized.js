@@ -105,6 +105,7 @@ const TimelineApp = {
             timelineContainer: document.querySelector('.timeline-container'),
             noLogin: document.getElementById('noLogin'),
             loginNowBtn: document.getElementById('loginNowBtn'),
+            clearStorageBtn: document.getElementById('clearStorageBtn'),
             navBar: document.querySelector('.fixed-nav-bar')
         };
 
@@ -952,6 +953,14 @@ const TimelineApp = {
         
         if (this.domCache.loginNowBtn) {
             this.domCache.loginNowBtn.addEventListener('click', () => this.showLoginModal());
+        }
+        
+        if (this.domCache.clearStorageBtn) {
+            this.domCache.clearStorageBtn.addEventListener('click', () => {
+                localStorage.clear();
+                this.toast.success('缓存已清除', '请刷新页面');
+                setTimeout(() => location.reload(), 1000);
+            });
         }
         
         const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
