@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY, getFromCache, setCache, clearCache } = require('./shared');
+const { getSupabaseClient, SECRET_KEY } = require('./shared');
 const jwt = require('jsonwebtoken');
 
 module.exports = async (req, res) => {
@@ -21,13 +21,6 @@ module.exports = async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         
         if (req.method === 'GET') {
-            const cacheKey = `favorites:${decoded.userId}`;
-            const cached = getFromCache(cacheKey);
-            
-            if (cached) {
-                return res.json(cached);
-            }
-            
             const { supabase } = await getSupabaseClient();
             const { data: favorites, error } = await supabase
                 .from('favorites')
@@ -44,7 +37,6 @@ module.exports = async (req, res) => {
                 years: favorites.filter(f => f.type === 'year').map(f => f.item_id)
             };
             
-            setCache(cacheKey, userFavorites);
             res.json(userFavorites);
         } else if (req.method === 'POST') {
             const body = await parseBody(req);
@@ -81,7 +73,6 @@ module.exports = async (req, res) => {
                 throw error;
             }
 
-            clearCache('favorites', decoded.userId);
             res.json({ message: '收藏成功' });
         } else if (req.method === 'DELETE') {
             const body = await parseBody(req);
@@ -99,7 +90,6 @@ module.exports = async (req, res) => {
                 throw error;
             }
 
-            clearCache('favorites', decoded.userId);
             res.json({ message: '删除成功' });
         } else {
             res.status(405).json({ error: '方法不允许' });

@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: '邮箱格式不正确' });
         }
 
-        const { supabase, supabaseAuth } = await getSupabaseClient();
+        const { supabase, supabaseAuth } = getSupabaseClient();
 
         const { data, error } = await supabaseAuth.auth.signInWithOtp({
             email

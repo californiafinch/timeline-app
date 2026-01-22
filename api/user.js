@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY, getFromCache, setCache, clearCache } = require('./shared');
+const { getSupabaseClient, SECRET_KEY } = require('./shared');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -22,13 +22,6 @@ module.exports = async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         
         if (req.method === 'GET') {
-            const cacheKey = `user:${decoded.userId}`;
-            const cached = getFromCache(cacheKey);
-            
-            if (cached) {
-                return res.json(cached);
-            }
-            
             const { supabase } = await getSupabaseClient();
             const { data: user, error } = await supabase
                 .from('users')
@@ -40,7 +33,6 @@ module.exports = async (req, res) => {
                 return res.status(404).json({ error: '用户不存在' });
             }
 
-            setCache(cacheKey, user);
             res.json(user);
         } else if (req.method === 'PUT') {
             const body = await parseBody(req);
@@ -70,7 +62,6 @@ module.exports = async (req, res) => {
                 return res.status(404).json({ error: '用户不存在' });
             }
 
-            clearCache('user', decoded.userId);
             res.json({ message: '更新成功' });
         } else {
             res.status(405).json({ error: '方法不允许' });

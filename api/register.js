@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: '密码必须包含至少一位大写字母和一位小写字母' });
         }
 
-        const { supabase, supabaseAuth } = await getSupabaseClient();
+        const { supabase, supabaseAuth } = getSupabaseClient();
 
         if (email) {
             if (!verificationCode) {
