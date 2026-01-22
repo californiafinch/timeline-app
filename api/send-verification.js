@@ -1,20 +1,23 @@
-const { getSupabaseClient } = require('./shared');
+const { supabase, supabaseAuth } = require('./shared');
 
 module.exports = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-    
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: '方法不允许' });
-    }
+    console.log('[send-verification] Request received');
     
     try {
+        if (req.method === 'OPTIONS') {
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+            res.status(200).end();
+            return;
+        }
+        
+        if (req.method !== 'POST') {
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            return res.status(405).json({ error: '方法不允许' });
+        }
+        
         const body = await parseBody(req);
         const { email } = body;
 
@@ -27,23 +30,24 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: '邮箱格式不正确' });
         }
 
-        const { supabase, supabaseAuth } = getSupabaseClient();
-
+        console.log('[send-verification] Sending OTP to:', email);
+        
         const { data, error } = await supabaseAuth.auth.signInWithOtp({
             email
         });
 
         if (error) {
-            console.error('发送验证码失败:', error);
+            console.error('[send-verification] Error:', error);
             return res.status(500).json({ error: '发送验证码失败' });
         }
 
+        console.log('[send-verification] Success');
         res.json({
             message: '验证码已发送',
             email
         });
     } catch (error) {
-        console.error('发送验证码错误:', error);
+        console.error('[send-verification] Unexpected error:', error);
         res.status(500).json({ error: '发送验证码失败' });
     }
 };
