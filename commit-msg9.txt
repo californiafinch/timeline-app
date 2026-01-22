@@ -1,0 +1,1 @@
+删除vercel.json文件以解决schema验证错误

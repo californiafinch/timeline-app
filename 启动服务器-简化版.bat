@@ -1,6 +1,4 @@
 @echo off
-chcp 65001 >nul
 cd /d "e:\Program\test01"
-echo 正在启动服务器...
 node server.js
 pause

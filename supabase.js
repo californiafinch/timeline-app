@@ -3,8 +3,8 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-let supabase;
-let supabaseAuth;
+let supabase = null;
+let supabaseAuth = null;
 
 if (!supabaseUrl || !supabaseKey) {
     console.warn('Missing SUPABASE_URL or SUPABASE_KEY environment variables, using mock supabase client');
@@ -39,8 +39,26 @@ if (!supabaseUrl || !supabaseKey) {
         }
     };
 } else {
-    supabase = createClient(supabaseUrl, supabaseKey);
-    supabaseAuth = createClient(supabaseUrl, supabaseKey);
+    const clientOptions = {
+        db: {
+            schema: 'public'
+        },
+        global: {
+            headers: {
+                'x-my-custom-header': 'timeline-app'
+            }
+        },
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+        }
+    };
+    
+    supabase = createClient(supabaseUrl, supabaseKey, clientOptions);
+    supabaseAuth = createClient(supabaseUrl, supabaseKey, clientOptions);
+    
+    console.log('✓ Supabase 客户端配置完成');
 }
 
 module.exports = { supabase, supabaseAuth };

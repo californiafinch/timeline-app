@@ -1,0 +1,1 @@
+简化vercel.json配置，移除version属性以避免schema验证错误

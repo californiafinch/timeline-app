@@ -1,0 +1,1 @@
+修复vercel.json配置错误：移除不支持的analytics属性

@@ -1,0 +1,1 @@
+修复vercel.json：移除不支持的functions和crons属性

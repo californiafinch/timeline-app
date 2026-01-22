@@ -1,0 +1,1 @@
+修改index.html：主域名重定向到timeline-app子目录

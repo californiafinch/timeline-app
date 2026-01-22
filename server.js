@@ -16,17 +16,88 @@ if (!SECRET_KEY) {
     process.exit(1);
 }
 
-// 懒加载 Supabase 客户端
+// 懒加载 Supabase 客户端（优化版）
 let supabase = null;
 let supabaseAuth = null;
+let isInitializing = false;
+let initPromise = null;
+let lastHealthCheck = 0;
+const HEALTH_CHECK_INTERVAL = 5 * 60 * 1000; // 5分钟健康检查间隔
 
 function getSupabaseClient() {
-    if (!supabase) {
-        const clients = require('./supabase');
-        supabase = clients.supabase;
-        supabaseAuth = clients.supabaseAuth;
+    if (supabase && !isInitializing) {
+        return { supabase, supabaseAuth };
     }
-    return { supabase, supabaseAuth };
+    
+    if (isInitializing && initPromise) {
+        return initPromise.then(() => ({ supabase, supabaseAuth }));
+    }
+    
+    isInitializing = true;
+    initPromise = (async () => {
+        try {
+            const clients = require('./supabase');
+            supabase = clients.supabase;
+            supabaseAuth = clients.supabaseAuth;
+            
+            console.log('✓ Supabase 客户端初始化成功');
+            lastHealthCheck = Date.now();
+            
+            return { supabase, supabaseAuth };
+        } catch (error) {
+            console.error('✗ Supabase 客户端初始化失败:', error);
+            throw error;
+        } finally {
+            isInitializing = false;
+            initPromise = null;
+        }
+    })();
+    
+    return initPromise;
+}
+
+async function checkDatabaseHealth() {
+    const now = Date.now();
+    if (now - lastHealthCheck < HEALTH_CHECK_INTERVAL) {
+        return true;
+    }
+    
+    try {
+        const { supabase: client } = await getSupabaseClient();
+        const { error } = await client.from('users').select('id').limit(1);
+        
+        if (error) {
+            console.error('✗ 数据库健康检查失败:', error);
+            return false;
+        }
+        
+        lastHealthCheck = now;
+        console.log('✓ 数据库健康检查通过');
+        return true;
+    } catch (error) {
+        console.error('✗ 数据库健康检查异常:', error);
+        return false;
+    }
+}
+
+async function executeWithRetry(operation, maxRetries = 3, delay = 1000) {
+    let lastError;
+    
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const result = await operation();
+            return result;
+        } catch (error) {
+            lastError = error;
+            console.warn(`操作失败，重试 ${i + 1}/${maxRetries}:`, error.message);
+            
+            if (i < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+            }
+        }
+    }
+    
+    throw lastError;
 }
 
 // 查询缓存
@@ -115,6 +186,22 @@ app.use((req, res, next) => {
         }
     });
     
+    next();
+});
+
+// 数据库健康检查中间件
+app.use(async (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        try {
+            const isHealthy = await checkDatabaseHealth();
+            if (!isHealthy) {
+                return res.status(503).json({ error: '数据库连接不可用，请稍后再试' });
+            }
+        } catch (error) {
+            console.error('数据库健康检查失败:', error);
+            return res.status(503).json({ error: '数据库连接不可用，请稍后再试' });
+        }
+    }
     next();
 });
 
