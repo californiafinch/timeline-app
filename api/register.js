@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY } = require('./shared');
+const { supabase, supabaseAuth, SECRET_KEY } = require('../shared');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -41,8 +41,6 @@ module.exports = async (req, res) => {
         if (!hasUpperCase || !hasLowerCase) {
             return res.status(400).json({ error: '密码必须包含至少一位大写字母和一位小写字母' });
         }
-
-        const { supabase, supabaseAuth } = getSupabaseClient();
 
         if (email) {
             if (!verificationCode) {

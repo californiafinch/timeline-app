@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY } = require('./shared');
+const { supabase, SECRET_KEY } = require('../shared');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -22,7 +22,6 @@ module.exports = async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         
         if (req.method === 'GET') {
-            const { supabase } = await getSupabaseClient();
             const { data: user, error } = await supabase
                 .from('users')
                 .select('id, username, email, avatar')
@@ -50,7 +49,6 @@ module.exports = async (req, res) => {
                 updateData.avatar = avatar;
             }
 
-            const { supabase } = await getSupabaseClient();
             const { data: user, error } = await supabase
                 .from('users')
                 .update(updateData)

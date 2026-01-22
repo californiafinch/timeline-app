@@ -1,4 +1,4 @@
-const { getSupabaseClient } = require('./shared');
+const { supabase } = require('../shared');
 const bcrypt = require('bcryptjs');
 
 module.exports = async (req, res) => {
@@ -32,7 +32,6 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: '密码长度必须在8-16位之间' });
         }
         
-        const { supabase } = await getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, email')

@@ -1,4 +1,4 @@
-const { supabase, supabaseAuth } = require('./shared');
+const { supabase, supabaseAuth } = require('../shared');
 
 module.exports = async (req, res) => {
     console.log('[send-verification] Request received');

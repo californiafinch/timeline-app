@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY } = require('./shared');
+const { supabase, SECRET_KEY } = require('../shared');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -24,7 +24,6 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: '用户名和密码不能为空' });
         }
 
-        const { supabase } = await getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, password, email, avatar')

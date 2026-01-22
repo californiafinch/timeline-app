@@ -1,4 +1,4 @@
-const { getSupabaseClient, SECRET_KEY } = require('./shared');
+const { supabase, SECRET_KEY } = require('../shared');
 const jwt = require('jsonwebtoken');
 
 module.exports = async (req, res) => {
@@ -21,7 +21,6 @@ module.exports = async (req, res) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         
         if (req.method === 'GET') {
-            const { supabase } = await getSupabaseClient();
             const { data: favorites, error } = await supabase
                 .from('favorites')
                 .select('id, type, item_id')
@@ -42,7 +41,6 @@ module.exports = async (req, res) => {
             const body = await parseBody(req);
             const { type, id } = body;
 
-            const { supabase } = await getSupabaseClient();
             const { data: existingFavorite, error: checkError } = await supabase
                 .from('favorites')
                 .select('id')
@@ -78,7 +76,6 @@ module.exports = async (req, res) => {
             const body = await parseBody(req);
             const { type, id } = body;
 
-            const { supabase } = await getSupabaseClient();
             const { error } = await supabase
                 .from('favorites')
                 .delete()
