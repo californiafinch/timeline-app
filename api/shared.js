@@ -1,6 +1,8 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { createClient } = require('@supabase/supabase-js');
+const { createClient: createAuthClient } = require('@supabase/supabase-js');
 
 const SECRET_KEY = process.env.JWT_SECRET;
 if (!SECRET_KEY) {
@@ -8,24 +10,21 @@ if (!SECRET_KEY) {
     throw new Error('JWT_SECRET is required');
 }
 
-let supabase = null;
-let supabaseAuth = null;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 
-function getSupabaseClient() {
-    if (supabase && supabaseAuth) {
-        return { supabase, supabaseAuth };
-    }
-    
-    const clients = require('../supabase');
-    supabase = clients.supabase;
-    supabaseAuth = clients.supabaseAuth;
-    
-    console.log('✓ Supabase 客户端初始化成功');
-    
-    return { supabase, supabaseAuth };
+if (!supabaseUrl || !supabaseKey) {
+    console.error('错误：必须设置 SUPABASE_URL 和 SUPABASE_KEY 环境变量');
+    throw new Error('SUPABASE_URL and SUPABASE_KEY are required');
 }
 
+const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseAuth = createAuthClient(supabaseUrl, supabaseKey);
+
+console.log('✓ Supabase 客户端初始化成功');
+
 module.exports = {
-    getSupabaseClient,
+    supabase,
+    supabaseAuth,
     SECRET_KEY
 };
