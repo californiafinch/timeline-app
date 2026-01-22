@@ -97,9 +97,7 @@ const TimelineApp = {
             characterModal: document.getElementById('characterModal'),
             characterInfo: document.getElementById('characterInfo'),
             loginModal: document.getElementById('loginModal'),
-            registerModal: document.getElementById('registerModal'),
             accountSettingsModal: document.getElementById('accountSettingsModal'),
-            forgotPasswordModal: document.getElementById('forgotPasswordModal'),
             noResults: document.getElementById('noResults'),
             countdownText: document.getElementById('countdownText'),
             timelineContainer: document.querySelector('.timeline-container'),
@@ -430,21 +428,7 @@ const TimelineApp = {
                 throw error;
             }
         },
-        
-        async register(username, password, email, avatar, verificationCode) {
-            return this.apiRequest('/register', {
-                method: 'POST',
-                body: JSON.stringify({ username, password, email, avatar, verificationCode })
-            });
-        },
 
-        async sendVerification(email) {
-            return this.apiRequest('/send-verification', {
-                method: 'POST',
-                body: JSON.stringify({ email })
-            });
-        },
-        
         async login(username, password) {
             const response = await fetch(`${this.apiBaseUrl}/login`, {
                 method: 'POST',
@@ -479,14 +463,7 @@ const TimelineApp = {
                 body: JSON.stringify(userData)
             });
         },
-        
-        async resetPassword(username, email, newPassword) {
-            return this.apiRequest('/reset-password', {
-                method: 'POST',
-                body: JSON.stringify({ username, email, newPassword })
-            });
-        },
-        
+
         async getFavorites() {
             return this.apiRequest('/favorites', {
                 method: 'GET'
@@ -944,7 +921,6 @@ const TimelineApp = {
         document.getElementById('loginClose').addEventListener('click', () => this.hideLoginModal());
         document.getElementById('loginOverlay').addEventListener('click', () => this.hideLoginModal());
         document.getElementById('loginForm').addEventListener('submit', (e) => this.handleLogin(e));
-        document.getElementById('showRegisterBtn').addEventListener('click', () => this.showRegisterModal());
         
         const passwordToggleBtn = document.getElementById('passwordToggleBtn');
         if (passwordToggleBtn) {
@@ -962,24 +938,10 @@ const TimelineApp = {
                 setTimeout(() => location.reload(), 1000);
             });
         }
-        
-        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
-        if (forgotPasswordBtn) {
-            forgotPasswordBtn.addEventListener('click', () => this.showForgotPasswordModal());
-        }
-        
-        document.getElementById('registerClose').addEventListener('click', () => this.hideRegisterModal());
-        document.getElementById('registerOverlay').addEventListener('click', () => this.hideRegisterModal());
-        document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
-        document.getElementById('sendVerificationBtn').addEventListener('click', () => this.handleSendVerification());
-        
+
         document.getElementById('accountSettingsClose').addEventListener('click', () => this.hideAccountSettings());
         document.getElementById('accountSettingsOverlay').addEventListener('click', () => this.hideAccountSettings());
         document.getElementById('accountSettingsForm').addEventListener('submit', (e) => this.handleAccountSettings(e));
-        
-        document.getElementById('forgotPasswordClose').addEventListener('click', () => this.hideForgotPasswordModal());
-        document.getElementById('forgotPasswordOverlay').addEventListener('click', () => this.hideForgotPasswordModal());
-        document.getElementById('forgotPasswordForm').addEventListener('submit', (e) => this.handleForgotPassword(e));
         
         document.addEventListener('click', (e) => {
             const eventCard = e.target.closest('.event-card');
@@ -1079,7 +1041,7 @@ const TimelineApp = {
     hideLoginModal() {
         this.domCache.loginModal.classList.remove('active');
     },
-    
+
     showTimelineContent() {
         const timelineContainer = this.domCache.timelineContainer;
         const noLogin = this.domCache.noLogin;
@@ -1109,76 +1071,7 @@ const TimelineApp = {
             navBar.classList.add('hidden');
         }
     },
-    
-    showRegisterModal() {
-        this.hideLoginModal();
-        this.domCache.registerModal.classList.add('active');
-    },
-    
-    hideRegisterModal() {
-        this.domCache.registerModal.classList.remove('active');
-    },
-    
-    showForgotPasswordModal() {
-        this.hideLoginModal();
-        this.domCache.forgotPasswordModal.classList.add('active');
-    },
-    
-    hideForgotPasswordModal() {
-        this.domCache.forgotPasswordModal.classList.remove('active');
-    },
-    
-    async handleForgotPassword(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('forgotUsername').value;
-        const email = document.getElementById('forgotEmail').value;
-        const newPassword = document.getElementById('forgotNewPassword').value;
-        const confirmPassword = document.getElementById('forgotConfirmPassword').value;
-        
-        if (!username || !email || !newPassword || !confirmPassword) {
-            this.toast.warning('输入错误', '请填写所有必填项');
-            return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            this.toast.warning('密码错误', '两次输入的密码不一致');
-            return;
-        }
-        
-        if (newPassword.length < 8 || newPassword.length > 16) {
-            this.toast.warning('密码长度错误', '密码长度必须在8-16位之间');
-            return;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            this.toast.warning('邮箱格式错误', '请输入有效的邮箱地址');
-            return;
-        }
-        
-        try {
-            this.showLoading('正在重置密码...');
-            const result = await this.storage.resetPassword(username, email, newPassword);
-            
-            if (result.success) {
-                this.toast.success('密码重置成功', '密码已重置，请使用新密码登录');
-                this.hideForgotPasswordModal();
-                
-                if (this.passwordErrorCount[username]) {
-                    delete this.passwordErrorCount[username];
-                }
-            } else {
-                this.toast.error('重置失败', result.message || '密码重置失败，请重试');
-            }
-        } catch (error) {
-            console.error('重置密码错误:', error);
-            this.toast.error('重置失败', error.message || '密码重置失败，请重试');
-        } finally {
-            this.hideLoading();
-        }
-    },
-    
+
     togglePasswordVisibility() {
         const passwordInput = document.getElementById('password');
         const passwordToggleBtn = document.getElementById('passwordToggleBtn');
@@ -1201,7 +1094,7 @@ const TimelineApp = {
             }
         }
     },
-    
+
     async handleLogin(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -1235,7 +1128,7 @@ const TimelineApp = {
             }
         } catch (error) {
             if (error.message === '用户未注册，请注册新账户再登录') {
-                this.toast.error('用户未注册', '请注册新账户再登录');
+                this.toast.error('登录失败', '用户名或密码错误');
             } else if (error.message === '密码错误') {
                 if (!this.passwordErrorCount[username]) {
                     this.passwordErrorCount[username] = 0;
@@ -1271,128 +1164,7 @@ const TimelineApp = {
         this.showLoginModal();
         console.log('logout 完成');
     },
-    
-    async handleSendVerification() {
-        const email = document.getElementById('registerEmail').value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
-        if (!email || !emailRegex.test(email)) {
-            this.toast.warning('邮箱错误', '请输入正确的邮箱格式');
-            return;
-        }
-        
-        const sendBtn = document.getElementById('sendVerificationBtn');
-        
-        if (sendBtn.disabled) {
-            return;
-        }
-        
-        try {
-            sendBtn.disabled = true;
-            sendBtn.textContent = '发送中...';
-            
-            await this.storage.sendVerification(email);
-            
-            this.toast.success('验证码已发送', '请检查您的邮箱');
-            
-            let countdown = 60;
-            sendBtn.textContent = `${countdown}秒后重发`;
-            
-            const timer = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = '发送验证码';
-                } else {
-                    sendBtn.textContent = `${countdown}秒后重发`;
-                }
-            }, 1000);
-        } catch (error) {
-            this.toast.error('发送失败', error.message || '发送验证码失败，请重试');
-            sendBtn.disabled = false;
-            sendBtn.textContent = '发送验证码';
-        }
-    },
-    
-    async handleRegister(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('registerUsername').value.trim();
-        const email = document.getElementById('registerEmail').value.trim();
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('registerConfirmPassword').value;
-        const avatar = document.getElementById('registerAvatar').value;
-        const verificationCode = document.getElementById('registerVerificationCode').value.trim();
-        
-        if (!username || username.length > 16) {
-            this.toast.warning('用户名错误', '用户名不能为空且最多16个字符');
-            return;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
-            this.toast.warning('邮箱错误', '请输入正确的邮箱格式');
-            return;
-        }
-        
-        if (password.length < 8 || password.length > 16) {
-            this.toast.warning('密码错误', '密码长度必须在8-16位之间');
-            return;
-        }
-        
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        if (!hasUpperCase || !hasLowerCase) {
-            this.toast.warning('密码错误', '密码必须包含至少一位大写字母和一位小写字母');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            this.toast.warning('密码错误', '两次输入的密码不一致');
-            return;
-        }
-        
-        if (!verificationCode) {
-            this.toast.warning('验证码错误', '请输入验证码');
-            return;
-        }
-        
-        const otpRegex = /^\d{6}$/;
-        if (!otpRegex.test(verificationCode)) {
-            this.toast.warning('验证码错误', '验证码必须是6位数字');
-            return;
-        }
-        
-        try {
-            this.showLoading('正在注册...');
-            const data = await this.storage.register(username, password, email, avatar, verificationCode);
-            
-            if (data.user) {
-                this.toast.success('注册成功', '注册成功！请登录');
-                this.hideRegisterModal();
-                this.showLoginModal();
-            }
-        } catch (error) {
-            this.toast.error('注册失败', error.message || '注册失败，请重试');
-        } finally {
-            this.hideLoading();
-        }
-    },
-    
-    selectAvatar(avatarType) {
-        document.getElementById('registerAvatar').value = avatarType;
-        
-        document.querySelectorAll('#registerModal .avatar-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        
-        const selectedOption = document.querySelector(`#registerModal .avatar-option[data-avatar="${avatarType}"]`);
-        if (selectedOption) {
-            selectedOption.classList.add('selected');
-        }
-    },
-    
+
     selectSettingsAvatar(avatarType) {
         document.getElementById('settingsAvatar').value = avatarType;
         
@@ -1936,10 +1708,6 @@ function handleCustomAvatar(input) {
 
 function selectSettingsAvatar(avatarType) {
     TimelineApp.selectSettingsAvatar(avatarType);
-}
-
-function selectAvatar(avatarType) {
-    TimelineApp.selectAvatar(avatarType);
 }
 
 function showCharacterFromFavorites(charId) {

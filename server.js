@@ -216,131 +216,6 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// 发送邮箱验证码
-app.post('/api/send-verification', async (req, res) => {
-    try {
-        const { email } = req.body;
-
-        if (!email) {
-            return res.status(400).json({ error: '邮箱不能为空' });
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: '邮箱格式不正确' });
-        }
-
-        const { supabase, supabaseAuth } = getSupabaseClient();
-
-        const { data, error } = await supabaseAuth.auth.signInWithOtp({
-            email
-        });
-
-        if (error) {
-            console.error('发送验证码失败:', error);
-            return res.status(500).json({ error: '发送验证码失败' });
-        }
-
-        res.json({
-            message: '验证码已发送',
-            email
-        });
-    } catch (error) {
-        console.error('发送验证码错误:', error);
-        res.status(500).json({ error: '发送验证码失败' });
-    }
-});
-
-// 用户注册
-app.post('/api/register', async (req, res) => {
-    try {
-        const { username, password, email, avatar, verificationCode } = req.body;
-
-        // 验证用户名
-        const usernameRegex = /^[a-zA-Z0-9_]{1,16}$/;
-        if (!username || !usernameRegex.test(username)) {
-            return res.status(400).json({ error: '用户名只能包含字母、数字和下划线，最多16个字符' });
-        }
-
-        // 验证邮箱格式
-        if (email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return res.status(400).json({ error: '邮箱格式不正确' });
-            }
-        }
-
-        // 验证密码长度
-        if (!password || password.length < 8 || password.length > 16) {
-            return res.status(400).json({ error: '密码长度必须在8-16位之间' });
-        }
-
-        // 验证密码必须包含大小写字母
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        if (!hasUpperCase || !hasLowerCase) {
-            return res.status(400).json({ error: '密码必须包含至少一位大写字母和一位小写字母' });
-        }
-
-        const { supabase, supabaseAuth } = getSupabaseClient();
-
-        // 验证邮箱验证码（如果提供了邮箱）
-        if (email) {
-            if (!verificationCode) {
-                return res.status(400).json({ error: '请先发送验证码' });
-            }
-
-            // 验证验证码（6位数字）
-            const otpRegex = /^\d{6}$/;
-            if (!otpRegex.test(verificationCode)) {
-                return res.status(400).json({ error: '验证码格式不正确' });
-            }
-
-            // 使用 Supabase Auth 验证 OTP
-            const { data: otpData, error: otpError } = await supabaseAuth.auth.verifyOtp({
-                email,
-                token: verificationCode,
-                type: 'email'
-            });
-
-            if (otpError || !otpData) {
-                return res.status(400).json({ error: '验证码错误或已过期' });
-            }
-        }
-
-        const { data: existingUser } = await supabase
-            .from('users')
-            .select('id')
-            .eq('username', username)
-            .single();
-
-        if (existingUser) {
-            return res.status(400).json({ error: '用户名已存在' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const { data: newUser, error } = await supabase
-            .from('users')
-            .insert([{
-                username,
-                password: hashedPassword,
-                email: email || '',
-                avatar: avatar || 'blue'
-            }])
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
-        }
-
-        res.json({ message: '注册成功', user: { id: newUser.id, username: newUser.username } });
-    } catch (error) {
-        console.error('注册错误:', error);
-        res.status(500).json({ error: '注册失败' });
-    }
-});
-
 // 用户登录
 app.post('/api/login', async (req, res) => {
     try {
@@ -358,7 +233,7 @@ app.post('/api/login', async (req, res) => {
             .single();
 
         if (error || !user) {
-            return res.status(404).json({ error: '用户未注册，请注册新账户再登录' });
+            return res.status(404).json({ error: '用户名或密码错误' });
         }
 
         const isValid = await bcrypt.compare(password, user.password);
@@ -466,55 +341,6 @@ app.put('/api/user', async (req, res) => {
     } catch (error) {
         console.error('更新用户信息错误:', error);
         res.status(500).json({ error: '更新失败' });
-    }
-});
-
-// 重置密码
-app.post('/api/reset-password', async (req, res) => {
-    try {
-        const { username, email, newPassword } = req.body;
-        
-        if (!username || !email || !newPassword) {
-            return res.status(400).json({ error: '用户名、邮箱和新密码不能为空' });
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: '邮箱格式不正确' });
-        }
-        
-        if (newPassword.length < 8 || newPassword.length > 16) {
-            return res.status(400).json({ error: '密码长度必须在8-16位之间' });
-        }
-        
-        const { supabase } = getSupabaseClient();
-        const { data: user, error } = await supabase
-            .from('users')
-            .select('id, username, email')
-            .eq('username', username)
-            .eq('email', email)
-            .single();
-        
-        if (error || !user) {
-            return res.status(404).json({ error: '用户名或邮箱不匹配' });
-        }
-        
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        
-        const { error: updateError } = await supabase
-            .from('users')
-            .update({ password: hashedPassword })
-            .eq('id', user.id);
-        
-        if (updateError) {
-            console.error('重置密码错误:', updateError);
-            return res.status(500).json({ error: '重置密码失败' });
-        }
-        
-        res.json({ success: true, message: '密码重置成功' });
-    } catch (error) {
-        console.error('重置密码错误:', error);
-        res.status(500).json({ error: '重置密码失败' });
     }
 });
 
