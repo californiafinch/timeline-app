@@ -131,22 +131,37 @@ const TimelineApp = {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
             
-            const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
-                ...options,
-                headers: { ...headers, ...options.headers }
-            });
+            // 添加超时机制，10秒超时
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || '请求失败');
+            try {
+                const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+                    ...options,
+                    headers: { ...headers, ...options.headers },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '请求失败');
+                }
+                
+                if (options.method === 'GET') {
+                    this.setCache(cacheKey, data);
+                }
+                
+                return data;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('请求超时，请检查网络连接');
+                }
+                throw error;
             }
-            
-            if (options.method === 'GET') {
-                this.setCache(cacheKey, data);
-            }
-            
-            return data;
         },
         
         // 用户注册
@@ -159,25 +174,40 @@ const TimelineApp = {
         
         // 用户登录
         async login(username, password) {
-            const response = await fetch(`${this.apiBaseUrl}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+            // 使用与 apiRequest 相同的超时机制
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || '请求失败');
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '请求失败');
+                }
+                
+                if (data.token) {
+                    this.setToken(data.token);
+                }
+                
+                return data;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('登录超时，请检查网络连接或稍后重试');
+                }
+                throw error;
             }
-            
-            if (data.token) {
-                this.setToken(data.token);
-            }
-            
-            return data;
         },
         
         // 获取用户信息

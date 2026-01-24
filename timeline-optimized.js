@@ -70,13 +70,27 @@ const TimelineApp = {
                 this.showTimelineContent();
             } catch (error) {
                 console.error('检查登录状态错误:', error);
-                this.storage.clearToken();
-                this.isLoggedIn = false;
-                this.currentUser = null;
-                this.updateUserDisplay();
-                this.hideTimelineContent();
+                // 优化：API 超时或失败时，不要立即清除 token 并隐藏内容
+                if (error.message === '登录状态检查超时' || error.message.includes('超时') || error.message.includes('Network')) {
+                    console.warn('登录状态检查超时，但保留 token 和显示内容');
+                    this.toast.warning('连接提示', '连接服务器超时，可能无法使用所有功能');
+                    // 显示时间轴内容，允许用户浏览，即使登录状态不确定
+                    this.isLoggedIn = false; // 标记为未登录，但保留 token
+                    this.currentUser = null;
+                    this.updateUserDisplay();
+                    this.renderTimeline();
+                    this.showTimelineContent(); // 显示内容，而不是隐藏
+                } else {
+                    // 只有在确认 token 无效时才清除并隐藏内容
+                    this.storage.clearToken();
+                    this.isLoggedIn = false;
+                    this.currentUser = null;
+                    this.updateUserDisplay();
+                    this.hideTimelineContent();
+                }
             }
         } else {
+            // 没有 token 时，显示登录提示
             this.isLoggedIn = false;
             this.currentUser = null;
             this.updateUserDisplay();
@@ -341,8 +355,13 @@ const TimelineApp = {
     storage: {
         // 根据当前域名自动选择API地址
         apiBaseUrl: (() => {
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
                 return 'http://localhost:3000/api';
+            } else if (hostname === 'californiafinch.github.io') {
+                // 为 github.io 域名设置正确的 API 地址
+                // 注意：GitHub Pages 不支持后端 API，这里应该使用正确的 API 服务器地址
+                return 'https://timeline-app-one.vercel.app/api';
             } else {
                 return 'https://timeline-app-one.vercel.app/api';
             }
@@ -1254,10 +1273,17 @@ const TimelineApp = {
                 this.loadFavoritesFromServer();
             } catch (error) {
                 console.error('检查登录状态错误:', error);
-                this.storage.clearToken();
-                this.isLoggedIn = false;
-                this.currentUser = null;
-                this.updateUserDisplay();
+                // 优化：API 超时或失败时，不要立即清除 token
+                if (error.message === '登录状态检查超时' || error.message.includes('超时') || error.message.includes('Network')) {
+                    console.warn('登录状态检查超时，但保留 token');
+                    this.toast.warning('连接提示', '连接服务器超时，可能无法使用所有功能');
+                } else {
+                    // 只有在确认 token 无效时才清除
+                    this.storage.clearToken();
+                    this.isLoggedIn = false;
+                    this.currentUser = null;
+                    this.updateUserDisplay();
+                }
             }
         }
     },
