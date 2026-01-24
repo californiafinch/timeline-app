@@ -231,7 +231,18 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ error: '用户名或密码错误' });
         }
 
-        const { supabase } = getSupabaseClient();
+        // 正确处理getSupabaseClient返回的Promise
+        const clients = getSupabaseClient();
+        let supabase;
+        
+        // 检查是否是Promise
+        if (typeof clients.then === 'function') {
+            const resolvedClients = await clients;
+            supabase = resolvedClients.supabase;
+        } else {
+            supabase = clients.supabase;
+        }
+
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, password, email, avatar')
@@ -239,6 +250,7 @@ app.post('/api/login', async (req, res) => {
             .single();
 
         if (error || !user) {
+            console.error('用户查询失败:', error);
             return res.status(404).json({ error: '用户名或密码错误' });
         }
 
@@ -265,6 +277,7 @@ app.post('/api/login', async (req, res) => {
         });
     } catch (error) {
         console.error('登录错误:', error);
+        console.error('错误堆栈:', error.stack);
         res.status(500).json({ error: '登录失败' });
     }
 });
@@ -287,7 +300,18 @@ app.get('/api/user', async (req, res) => {
             return res.json(cached);
         }
         
-        const { supabase } = getSupabaseClient();
+        // 正确处理getSupabaseClient返回的Promise
+        const clients = getSupabaseClient();
+        let supabase;
+        
+        // 检查是否是Promise
+        if (typeof clients.then === 'function') {
+            const resolvedClients = await clients;
+            supabase = resolvedClients.supabase;
+        } else {
+            supabase = clients.supabase;
+        }
+        
         const { data: user, error } = await supabase
             .from('users')
             .select('id, username, email, avatar')
@@ -330,7 +354,18 @@ app.put('/api/user', async (req, res) => {
             updateData.avatar = avatar;
         }
 
-        const { supabase } = getSupabaseClient();
+        // 正确处理getSupabaseClient返回的Promise
+        const clients = getSupabaseClient();
+        let supabase;
+        
+        // 检查是否是Promise
+        if (typeof clients.then === 'function') {
+            const resolvedClients = await clients;
+            supabase = resolvedClients.supabase;
+        } else {
+            supabase = clients.supabase;
+        }
+        
         const { data: user, error } = await supabase
             .from('users')
             .update(updateData)
