@@ -39,7 +39,7 @@ if (!supabaseUrl || !supabaseKey) {
         }
     };
 } else {
-    // 优化的 Supabase 客户端配置
+    // 优化的 Supabase 客户端配置（简化版本，避免自定义 fetch 导致的部署问题）
     const clientOptions = {
         db: {
             schema: 'public',
@@ -53,19 +53,8 @@ if (!supabaseUrl || !supabaseKey) {
         global: {
             headers: {
                 'x-my-custom-header': 'timeline-app'
-            },
-            // 添加请求超时设置
-            fetch: (url, options = {}) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
-                
-                const result = fetch(url, {
-                    ...options,
-                    signal: controller.signal
-                }).finally(() => clearTimeout(timeoutId));
-                
-                return result;
             }
+            // 移除自定义 fetch 实现，避免 Vercel 部署问题
         },
         auth: {
             persistSession: false,
