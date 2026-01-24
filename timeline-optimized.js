@@ -1277,7 +1277,8 @@ const TimelineApp = {
         const avatars = {
             blue: '<div class="avatar-initial blue-smile">😊</div>',
             yellow: '<div class="avatar-initial yellow-smile">😊</div>',
-            green: '<div class="avatar-initial green-smile">😊</div>'
+            green: '<div class="avatar-initial green-smile">😊</div>',
+            pink: '<div class="avatar-initial pink-smile">😊</div>'
         };
         
         return avatars[avatarType] || avatars.blue;

@@ -1156,6 +1156,11 @@ body {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
+/* 粉色笑脸头像 */
+.pink-smile {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+}
+
 /* 收藏列表 */
 .favorites-list {
     list-style: none;

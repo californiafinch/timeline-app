@@ -225,6 +225,12 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: '用户名和密码不能为空' });
         }
 
+        // 只允许特定用户登录
+        const allowedUsernames = ['admin', 'finch', 'fitz'];
+        if (!allowedUsernames.includes(username)) {
+            return res.status(401).json({ error: '用户名或密码错误' });
+        }
+
         const { supabase } = getSupabaseClient();
         const { data: user, error } = await supabase
             .from('users')
@@ -488,8 +494,10 @@ app.use((err, req, res, next) => {
 
 // 只在本地开发环境中启动服务器
 if (require.main === module) {
-    app.listen(PORT, () => {
+    // 监听所有网络接口，允许移动端访问
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`服务器运行在 http://localhost:${PORT}`);
+        console.log(`移动端可通过 http://[服务器IP]:${PORT} 访问`);
     });
 }
 
