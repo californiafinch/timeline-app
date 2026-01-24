@@ -10,15 +10,27 @@
       "use": "@vercel/static"
     },
     {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
       "src": "*.css",
       "use": "@vercel/static"
     },
     {
       "src": "data/*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "timeline.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "timeline-optimized.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "mobile.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "timeline.css",
       "use": "@vercel/static"
     }
   ],
