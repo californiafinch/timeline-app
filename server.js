@@ -162,25 +162,16 @@ app.get('/', (req, res) => {
 });
 
 // 中间件配置
-const allowedOrigins = [
-    'http://localhost:3000',
-    'https://timeline-app-one.vercel.app',
-    'https://californiafinch.github.io'
-];
-
+// 允许所有来源的请求，解决CORS问题
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('不允许的 CORS 来源'));
-        }
-    },
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// 处理预检请求
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -538,17 +529,15 @@ app.delete('/api/favorites', async (req, res) => {
     }
 });
 
-// 静态文件中间件：必须放在API路由之后
-app.use(express.static('.'));
-
-// 404 处理：API 请求返回 404 JSON，其他请求返回 timeline.html
+// API 404 处理
 app.use((req, res) => {
     console.log('404:', req.path);
     
     if (req.path.startsWith('/api/')) {
         res.status(404).json({ error: '未找到' });
     } else {
-        res.sendFile(__dirname + '/timeline.html');
+        // 非API请求让Vercel处理静态文件或返回404
+        res.status(404).json({ error: '未找到' });
     }
 });
 
