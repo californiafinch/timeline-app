@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -81,8 +81,8 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 // 导出初始化函数
-function getSupabaseClient() {
+export function getSupabaseClient() {
     return { supabase, supabaseAuth };
 }
 
-module.exports = { supabase, supabaseAuth, getSupabaseClient };
+export { supabase, supabaseAuth };
