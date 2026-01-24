@@ -177,11 +177,12 @@ app.use(cors({
             callback(new Error('不允许的 CORS 来源'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
-app.use(express.static('.'));
 
 // 响应时间日志中间件
 app.use((req, res, next) => {
@@ -536,6 +537,9 @@ app.delete('/api/favorites', async (req, res) => {
         res.status(500).json({ error: '删除失败' });
     }
 });
+
+// 静态文件中间件：必须放在API路由之后
+app.use(express.static('.'));
 
 // 404 处理：API 请求返回 404 JSON，其他请求返回 timeline.html
 app.use((req, res) => {
