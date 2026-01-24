@@ -15,6 +15,12 @@ app.use(cors({
 // 处理预检请求
 app.options('*', cors());
 
+// 解析JSON请求体
+app.use(express.json());
+
+// 解析URL编码的请求体
+app.use(express.urlencoded({ extended: true }));
+
 // 静态文件服务
 app.use(express.static('.'));
 
@@ -22,6 +28,25 @@ app.use(express.static('.'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/timeline.html');
 });
+
+// API路由配置
+const loginHandler = require('./api/login');
+const userHandler = require('./api/user');
+const favoritesHandler = require('./api/favorites');
+
+// 登录路由
+app.post('/api/login', loginHandler);
+app.options('/api/login', cors());
+
+// 用户信息路由
+app.get('/api/user', userHandler);
+app.options('/api/user', cors());
+
+// 收藏夹路由
+app.post('/api/favorites', favoritesHandler);
+app.delete('/api/favorites', favoritesHandler);
+app.get('/api/favorites', favoritesHandler);
+app.options('/api/favorites', cors());
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
