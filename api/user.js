@@ -4,7 +4,7 @@ const { getSupabaseClient } = require('../supabase');
 // 加载环境变量
 const SECRET_KEY = process.env.JWT_SECRET;
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   // 设置CORS头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');

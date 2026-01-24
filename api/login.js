@@ -8,7 +8,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 // 只允许特定用户登录
 const allowedUsernames = ['admin', 'finch', 'fitz'];
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   // 设置CORS头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
