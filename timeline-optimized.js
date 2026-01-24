@@ -395,7 +395,7 @@ const TimelineApp = {
             };
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 优化：超时时间从10秒改为8秒
             
             try {
                 const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
@@ -427,7 +427,7 @@ const TimelineApp = {
                 clearTimeout(timeoutId);
                 
                 if (error.name === 'AbortError') {
-                    throw new Error('请求超时，请检查网络连接');
+                    throw new Error('登录请求超时，请稍后重试'); // 优化：更精确的错误信息
                 }
                 
                 throw error;

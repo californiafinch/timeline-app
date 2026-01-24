@@ -229,16 +229,24 @@ app.use('/api/', limiter);
 
 // 用户登录
 app.post('/api/login', async (req, res) => {
+    // 设置响应超时，防止请求无限等待
+    const timeoutId = setTimeout(() => {
+        console.error('登录请求超时');
+        res.status(504).json({ error: '登录超时，请稍后重试' });
+    }, 8000); // 8秒超时
+    
     try {
         const { username, password } = req.body;
 
         if (!username || !password) {
+            clearTimeout(timeoutId);
             return res.status(400).json({ error: '用户名和密码不能为空' });
         }
 
         // 只允许特定用户登录
         const allowedUsernames = ['admin', 'finch', 'fitz'];
         if (!allowedUsernames.includes(username)) {
+            clearTimeout(timeoutId);
             return res.status(401).json({ error: '用户名或密码错误' });
         }
 
@@ -261,12 +269,14 @@ app.post('/api/login', async (req, res) => {
             .single();
 
         if (error || !user) {
+            clearTimeout(timeoutId);
             console.error('用户查询失败:', error);
             return res.status(404).json({ error: '用户名或密码错误' });
         }
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
+            clearTimeout(timeoutId);
             return res.status(401).json({ error: '密码错误' });
         }
 
@@ -275,6 +285,9 @@ app.post('/api/login', async (req, res) => {
             SECRET_KEY,
             { expiresIn: '7d' }
         );
+
+        // 清除超时定时器
+        clearTimeout(timeoutId);
 
         res.json({
             message: '登录成功',
@@ -287,9 +300,12 @@ app.post('/api/login', async (req, res) => {
             }
         });
     } catch (error) {
+        // 清除超时定时器
+        clearTimeout(timeoutId);
+        
         console.error('登录错误:', error);
         console.error('错误堆栈:', error.stack);
-        res.status(500).json({ error: '登录失败' });
+        res.status(500).json({ error: '登录失败，请稍后重试' });
     }
 });
 
