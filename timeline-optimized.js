@@ -339,9 +339,8 @@ const TimelineApp = {
     
     // 存储管理模块：封装localStorage和API操作
     storage: {
-        apiBaseUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:3000/api' 
-            : 'https://timeline-app-one.vercel.app/api',
+        // 使用相对路径避免DNS污染问题，自动继承当前页面域名
+        apiBaseUrl: '/api',
         
         // 缓存机制
         cache: {
