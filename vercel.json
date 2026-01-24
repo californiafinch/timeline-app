@@ -1,6 +1,16 @@
 {
   "framework": null,
+  "functions": {
+    "server.js": {
+      "includeFiles": "./**/*",
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server.js"
+    },
     {
       "source": "/(.*)",
       "destination": "/$1"
