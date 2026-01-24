@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     const decoded = jwt.verify(token, SECRET_KEY);
 
     // 获取Supabase客户端
-    const clients = await getSupabaseClient();
+    const clients = getSupabaseClient();
     const supabase = clients.supabase;
 
     // 根据请求方法处理不同的逻辑

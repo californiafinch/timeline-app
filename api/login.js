@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
     }
 
     // 获取Supabase客户端
-    const clients = await getSupabaseClient();
+    const clients = getSupabaseClient();
     const supabase = clients.supabase;
 
     // 查询用户信息

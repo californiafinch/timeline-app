@@ -2,7 +2,7 @@
   "name": "timeline-app",
   "version": "1.0.0",
   "description": "历史年表应用",
-  "main": "server.js",
+
   "scripts": {
     "dev": "node server.js"
   },
