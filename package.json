@@ -4,7 +4,8 @@
   "description": "历史年表应用",
 
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "build": "echo 'Build completed'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
