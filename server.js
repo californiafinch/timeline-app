@@ -8,11 +8,22 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 强制要求 JWT_SECRET 环境变量
+// 强制要求环境变量
 const SECRET_KEY = process.env.JWT_SECRET;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
 if (!SECRET_KEY) {
     console.error('错误：必须设置 JWT_SECRET 环境变量');
     console.error('请在 .env 文件中添加：JWT_SECRET=your-secret-key');
+    process.exit(1);
+}
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('错误：必须设置 SUPABASE_URL 和 SUPABASE_KEY 环境变量');
+    console.error('请在 .env 文件中添加：');
+    console.error('SUPABASE_URL=your-supabase-url');
+    console.error('SUPABASE_KEY=your-supabase-key');
     process.exit(1);
 }
 

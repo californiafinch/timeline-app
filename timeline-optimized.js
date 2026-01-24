@@ -413,6 +413,11 @@ const TimelineApp = {
                 
                 const data = await response.json();
                 
+                // 保存登录token（如果返回了token）
+                if (data.token) {
+                    this.setToken(data.token);
+                }
+                
                 if (options.method === 'GET') {
                     this.setCache(cacheKey, data);
                 }
@@ -430,25 +435,10 @@ const TimelineApp = {
         },
 
         async login(username, password) {
-            const response = await fetch(`${this.apiBaseUrl}/login`, {
+            return this.apiRequest('/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ username, password })
             });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || '请求失败');
-            }
-            
-            if (data.token) {
-                this.setToken(data.token);
-            }
-            
-            return data;
         },
         
         async getUser() {
@@ -1127,9 +1117,16 @@ const TimelineApp = {
                 }
             }
         } catch (error) {
-            if (error.message === '用户未注册，请注册新账户再登录') {
-                this.toast.error('登录失败', '用户名或密码错误');
-            } else if (error.message === '密码错误') {
+            console.error('登录失败详细信息:', error);
+            console.error('错误堆栈:', error.stack);
+            
+            let title = '登录失败';
+            let message = error.message || '登录失败，请重试';
+            
+            // 更精确的错误信息处理
+            if (message.includes('用户名或密码错误') || message.includes('401') || message.includes('404')) {
+                message = '用户名或密码错误';
+            } else if (message.includes('密码错误')) {
                 if (!this.passwordErrorCount[username]) {
                     this.passwordErrorCount[username] = 0;
                 }
@@ -1138,13 +1135,19 @@ const TimelineApp = {
                 const remainingAttempts = 5 - this.passwordErrorCount[username];
                 
                 if (this.passwordErrorCount[username] >= 5) {
-                    this.toast.error('密码错误次数过多', `您已连续输错5次密码，建议更改密码`);
+                    title = '密码错误次数过多';
+                    message = '您已连续输错5次密码，建议更改密码';
                 } else {
-                    this.toast.error('密码错误', `密码错误，还剩${remainingAttempts}次尝试机会`);
+                    title = '密码错误';
+                    message = `密码错误，还剩${remainingAttempts}次尝试机会`;
                 }
-            } else {
-                this.toast.error('登录失败', error.message || '登录失败，请重试');
+            } else if (message.includes('AbortError') || message.includes('timeout')) {
+                message = '请求超时，请检查网络连接';
+            } else if (message.includes('NetworkError') || message.includes('Failed to fetch')) {
+                message = '网络错误，请检查网络连接';
             }
+            
+            this.toast.error(title, message);
         } finally {
             this.hideLoading();
         }
