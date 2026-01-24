@@ -80,4 +80,9 @@ if (!supabaseUrl || !supabaseKey) {
     console.log('✓ Supabase 客户端配置完成（已优化连接池和超时）');
 }
 
-module.exports = { supabase, supabaseAuth };
+// 导出初始化函数
+function getSupabaseClient() {
+    return { supabase, supabaseAuth };
+}
+
+module.exports = { supabase, supabaseAuth, getSupabaseClient };
