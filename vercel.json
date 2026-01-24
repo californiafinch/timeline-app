@@ -1,19 +1,19 @@
 {
   "framework": null,
-  "functions": {
-    "server.js": {
-      "includeFiles": "./**/*",
-      "maxDuration": 10
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
+      "src": "server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "src": "./!(server.js)*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
     }
   ],
   "headers": [
