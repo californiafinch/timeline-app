@@ -251,6 +251,14 @@
     <script src="data/characters.js"></script>
     <!-- 加载主逻辑脚本（优化版） -->
     <script src="timeline-optimized.js"></script>
+    <!-- 检测访问方式并提示用户 -->
+    <script>
+        // 检测是否直接打开HTML文件（file://协议）
+        if (window.location.protocol === 'file:') {
+            alert('请通过 http://localhost:3000 访问应用，否则登录功能无法正常工作！\n\n原因：直接打开HTML文件会导致API请求发送到错误的地址。\n\n解决方案：\n1. 确保服务器正在运行（node server.js）\n2. 在浏览器中访问 http://localhost:3000');
+        }
+    </script>
+    
     <!-- Service Worker 注册脚本：实现离线支持 -->
     <script>
         // 检查浏览器是否支持 Service Worker
