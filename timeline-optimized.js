@@ -339,8 +339,14 @@ const TimelineApp = {
     
     // 存储管理模块：封装localStorage和API操作
     storage: {
-        // 使用相对路径避免DNS污染问题，自动继承当前页面域名
-        apiBaseUrl: '/api',
+        // 根据当前域名自动选择API地址
+        apiBaseUrl: (() => {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3000/api';
+            } else {
+                return 'https://timeline-app-one.vercel.app/api';
+            }
+        })(),
         
         // 缓存机制
         cache: {
@@ -425,11 +431,18 @@ const TimelineApp = {
             } catch (error) {
                 clearTimeout(timeoutId);
                 
+                // 更友好的错误信息处理
+                let errorMessage = error.message || '请求失败';
+                
                 if (error.name === 'AbortError') {
-                    throw new Error('登录请求超时，请稍后重试'); // 优化：更精确的错误信息
+                    errorMessage = '请求超时，请检查网络连接或稍后重试';
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage = '网络错误，无法连接到服务器';
+                } else if (error.message.includes('405')) {
+                    errorMessage = '请求方法不允许，服务器配置可能有问题';
                 }
                 
-                throw error;
+                throw new Error(errorMessage);
             }
         },
 
