@@ -24,14 +24,6 @@
     {
       "src": "timeline-optimized.js",
       "use": "@vercel/static"
-    },
-    {
-      "src": "mobile.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "timeline.css",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
