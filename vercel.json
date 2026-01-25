@@ -41,7 +41,7 @@
     },
     {
       "src": "/",
-      "dest": "timeline.html"
+      "dest": "index.html"
     },
     {
       "src": "/(.*)",
