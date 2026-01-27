@@ -1,0 +1,322 @@
+[
+  {
+    "timestamp": "2026-01-27T18:47:57.197Z",
+    "totalRequests": 7,
+    "successfulRequests": 2,
+    "failedRequests": 5,
+    "successRate": "28.57",
+    "avgDuration": "598.29",
+    "minDuration": 232,
+    "maxDuration": 1918,
+    "p50": 289,
+    "p95": 1918,
+    "p99": 1918,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          604
+        ]
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1918
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 0,
+        "failed": 3,
+        "durations": [
+          251,
+          232,
+          289
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          634
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          260
+        ]
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "DELETE",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-27T18:49:06.009Z",
+    "totalRequests": 7,
+    "successfulRequests": 2,
+    "failedRequests": 5,
+    "successRate": "28.57",
+    "avgDuration": "674.29",
+    "minDuration": 189,
+    "maxDuration": 1672,
+    "p50": 439,
+    "p95": 1672,
+    "p99": 1672,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          189
+        ]
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1672
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 0,
+        "failed": 3,
+        "durations": [
+          439,
+          1116,
+          420
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          412
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          472
+        ]
+      }
+    },
+    "slowRequests": 2,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "DELETE",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-27T18:52:01.219Z",
+    "totalRequests": 7,
+    "successfulRequests": 2,
+    "failedRequests": 5,
+    "successRate": "28.57",
+    "avgDuration": "714.29",
+    "minDuration": 203,
+    "maxDuration": 2730,
+    "p50": 414,
+    "p95": 2730,
+    "p99": 2730,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          203
+        ]
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          2730
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 0,
+        "failed": 3,
+        "durations": [
+          434,
+          392,
+          416
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          414
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          411
+        ]
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "DELETE",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-27T18:54:53.085Z",
+    "totalRequests": 7,
+    "successfulRequests": 6,
+    "failedRequests": 1,
+    "successRate": "85.71",
+    "avgDuration": "377.43",
+    "minDuration": 7,
+    "maxDuration": 1278,
+    "p50": 254,
+    "p95": 1278,
+    "p99": 1278,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          254
+        ]
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1278
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          289,
+          7,
+          190
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          424
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          200
+        ]
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  }
+]

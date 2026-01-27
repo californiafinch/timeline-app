@@ -25,10 +25,16 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: '方法不允许' });
   }
 
+  // 设置请求超时
+  const timeoutId = setTimeout(() => {
+    return res.status(504).json({ error: '请求超时，请稍后重试' });
+  }, 10000); // 10秒超时
+
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
+      clearTimeout(timeoutId);
       return res.status(400).json({ error: '用户名和密码不能为空' });
     }
 
@@ -36,12 +42,13 @@ module.exports = async (req, res) => {
     if (allowedUsernames.includes(username)) {
       // 生成测试用JWT token
       const token = jwt.sign(
-        { userId: '1', username: username },
+        { userId: '123e4567-e89b-12d3-a456-426614174000', username: username },
         SECRET_KEY,
         { expiresIn: '7d' }
       );
 
       // 返回测试用户信息和token
+      clearTimeout(timeoutId);
       return res.json({
         message: '登录成功',
         token,
@@ -55,8 +62,10 @@ module.exports = async (req, res) => {
     }
 
     // 用户名不在允许列表中
+    clearTimeout(timeoutId);
     return res.status(401).json({ error: '用户名或密码错误' });
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error('登录错误:', error);
     return res.status(500).json({ error: '登录失败，请稍后重试' });
   }
