@@ -318,5 +318,854 @@
         "error": "500 Internal Server Error"
       }
     ]
+  },
+  {
+    "timestamp": "2026-01-31T17:07:42.967Z",
+    "totalRequests": 13,
+    "successfulRequests": 11,
+    "failedRequests": 2,
+    "successRate": "84.62",
+    "avgDuration": "548.15",
+    "minDuration": 7,
+    "maxDuration": 1848,
+    "p50": 280,
+    "p95": 1848,
+    "p99": 1848,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          741,
+          646
+        ]
+      },
+      "/user (GET)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          1848,
+          1844
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 5,
+        "successful": 5,
+        "failed": 0,
+        "durations": [
+          272,
+          280,
+          7,
+          8,
+          174
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 2,
+        "successful": 0,
+        "failed": 2,
+        "durations": [
+          433,
+          449
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          197,
+          227
+        ]
+      }
+    },
+    "slowRequests": 2,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-31T17:07:43.001Z",
+    "totalRequests": 14,
+    "successfulRequests": 12,
+    "failedRequests": 2,
+    "successRate": "85.71",
+    "avgDuration": "522.14",
+    "minDuration": 7,
+    "maxDuration": 1848,
+    "p50": 280,
+    "p95": 1848,
+    "p99": 1848,
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          741,
+          646
+        ]
+      },
+      "/user (GET)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          1848,
+          1844
+        ]
+      },
+      "/favorites (GET)": {
+        "total": 6,
+        "successful": 6,
+        "failed": 0,
+        "durations": [
+          272,
+          280,
+          7,
+          8,
+          174,
+          184
+        ]
+      },
+      "/favorites (POST)": {
+        "total": 2,
+        "successful": 0,
+        "failed": 2,
+        "durations": [
+          433,
+          449
+        ]
+      },
+      "/favorites (DELETE)": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0,
+        "durations": [
+          197,
+          227
+        ]
+      }
+    },
+    "slowRequests": 2,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-31T17:21:02.566Z",
+    "totalRequests": 7,
+    "successfulRequests": 6,
+    "failedRequests": 1,
+    "successRate": "85.71",
+    "avgDuration": "416.86",
+    "minDuration": 6,
+    "maxDuration": 1446,
+    "p50": 316,
+    "p95": 1446,
+    "p99": 1446,
+    "networkTime": {
+      "avg": "416.29"
+    },
+    "parseTime": {
+      "avg": "1.14"
+    },
+    "retryStats": {
+      "total": 0,
+      "max": 0,
+      "avg": "0.00"
+    },
+    "errorStats": {
+      "SERVER_ERROR": 1
+    },
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          175
+        ],
+        "networkTimes": [
+          173
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1446
+        ],
+        "networkTimes": [
+          1446
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          210,
+          6,
+          338
+        ],
+        "networkTimes": [
+          209,
+          6,
+          338
+        ],
+        "parseTimes": [
+          1,
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          427
+        ],
+        "networkTimes": [
+          427
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          316
+        ],
+        "networkTimes": [
+          315
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error",
+        "errorType": "SERVER_ERROR",
+        "retries": 0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-31T17:23:52.650Z",
+    "totalRequests": 7,
+    "successfulRequests": 6,
+    "failedRequests": 1,
+    "successRate": "85.71",
+    "avgDuration": "1387.71",
+    "minDuration": 7,
+    "maxDuration": 5030,
+    "p50": 563,
+    "p95": 5030,
+    "p99": 5030,
+    "networkTime": {
+      "avg": "1387.00"
+    },
+    "parseTime": {
+      "avg": "1.29"
+    },
+    "retryStats": {
+      "total": 0,
+      "max": 0,
+      "avg": "0.00"
+    },
+    "errorStats": {
+      "SERVER_ERROR": 1
+    },
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          227
+        ],
+        "networkTimes": [
+          223
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          5030
+        ],
+        "networkTimes": [
+          5030
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          1419,
+          7,
+          546
+        ],
+        "networkTimes": [
+          1419,
+          7,
+          546
+        ],
+        "parseTimes": [
+          1,
+          1,
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          1922
+        ],
+        "networkTimes": [
+          1921
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          563
+        ],
+        "networkTimes": [
+          563
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      }
+    },
+    "slowRequests": 3,
+    "failedRequestsList": [
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "500 Internal Server Error",
+        "errorType": "SERVER_ERROR",
+        "retries": 0
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-31T17:25:39.898Z",
+    "totalRequests": 7,
+    "successfulRequests": 7,
+    "failedRequests": 0,
+    "successRate": "100.00",
+    "avgDuration": "983.29",
+    "minDuration": 7,
+    "maxDuration": 2026,
+    "p50": 493,
+    "p95": 2026,
+    "p99": 2026,
+    "networkTime": {
+      "avg": "982.86"
+    },
+    "parseTime": {
+      "avg": "0.71"
+    },
+    "retryStats": {
+      "total": 0,
+      "max": 0,
+      "avg": "0.00"
+    },
+    "errorStats": {},
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          399
+        ],
+        "networkTimes": [
+          397
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1529
+        ],
+        "networkTimes": [
+          1529
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          2026,
+          7,
+          453
+        ],
+        "networkTimes": [
+          2025,
+          7,
+          453
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1976
+        ],
+        "networkTimes": [
+          1976
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          493
+        ],
+        "networkTimes": [
+          493
+        ],
+        "parseTimes": [],
+        "retries": 0
+      }
+    },
+    "slowRequests": 3,
+    "failedRequestsList": []
+  },
+  {
+    "timestamp": "2026-01-31T17:29:14.284Z",
+    "totalRequests": 7,
+    "successfulRequests": 7,
+    "failedRequests": 0,
+    "successRate": "100.00",
+    "avgDuration": "555.00",
+    "minDuration": 10,
+    "maxDuration": 2559,
+    "p50": 219,
+    "p95": 2559,
+    "p99": 2559,
+    "networkTime": {
+      "avg": "554.71"
+    },
+    "parseTime": {
+      "avg": "1.00"
+    },
+    "retryStats": {
+      "total": 0,
+      "max": 0,
+      "avg": "0.00"
+    },
+    "errorStats": {},
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          181
+        ],
+        "networkTimes": [
+          179
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          2559
+        ],
+        "networkTimes": [
+          2559
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          252,
+          10,
+          183
+        ],
+        "networkTimes": [
+          252,
+          10,
+          183
+        ],
+        "parseTimes": [
+          1,
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          481
+        ],
+        "networkTimes": [
+          481
+        ],
+        "parseTimes": [],
+        "retries": 0
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          219
+        ],
+        "networkTimes": [
+          219
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": []
+  },
+  {
+    "timestamp": "2026-01-31T17:35:11.310Z",
+    "totalRequests": 7,
+    "successfulRequests": 1,
+    "failedRequests": 6,
+    "successRate": "14.29",
+    "avgDuration": "77.86",
+    "minDuration": 5,
+    "maxDuration": 511,
+    "p50": 6,
+    "p95": 511,
+    "p99": 511,
+    "networkTime": {
+      "avg": "77.57"
+    },
+    "parseTime": {
+      "avg": "0.57"
+    },
+    "retryStats": {
+      "total": 12,
+      "max": 2,
+      "avg": "1.71"
+    },
+    "errorStats": {
+      "NETWORK_ERROR": 6
+    },
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          511
+        ],
+        "networkTimes": [
+          509
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          6
+        ],
+        "networkTimes": [
+          6
+        ],
+        "parseTimes": [],
+        "retries": 2
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 0,
+        "failed": 3,
+        "durations": [
+          5,
+          6,
+          5
+        ],
+        "networkTimes": [
+          5,
+          6,
+          5
+        ],
+        "parseTimes": [],
+        "retries": 6
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          7
+        ],
+        "networkTimes": [
+          7
+        ],
+        "parseTimes": [],
+        "retries": 2
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1,
+        "durations": [
+          5
+        ],
+        "networkTimes": [
+          5
+        ],
+        "parseTimes": [],
+        "retries": 2
+      }
+    },
+    "slowRequests": 0,
+    "failedRequestsList": [
+      {
+        "endpoint": "/user",
+        "method": "GET",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "POST",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "DELETE",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      },
+      {
+        "endpoint": "/favorites",
+        "method": "GET",
+        "error": "fetch failed",
+        "errorType": "NETWORK_ERROR",
+        "retries": 2
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-01-31T17:36:57.189Z",
+    "totalRequests": 7,
+    "successfulRequests": 7,
+    "failedRequests": 0,
+    "successRate": "100.00",
+    "avgDuration": "350.14",
+    "minDuration": 8,
+    "maxDuration": 1591,
+    "p50": 133,
+    "p95": 1591,
+    "p99": 1591,
+    "networkTime": {
+      "avg": "349.86"
+    },
+    "parseTime": {
+      "avg": "1.29"
+    },
+    "retryStats": {
+      "total": 0,
+      "max": 0,
+      "avg": "0.00"
+    },
+    "errorStats": {},
+    "endpointStats": {
+      "/login (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          228
+        ],
+        "networkTimes": [
+          227
+        ],
+        "parseTimes": [
+          4
+        ],
+        "retries": 0
+      },
+      "/user (GET)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          22
+        ],
+        "networkTimes": [
+          22
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (GET)": {
+        "total": 3,
+        "successful": 3,
+        "failed": 0,
+        "durations": [
+          133,
+          10,
+          8
+        ],
+        "networkTimes": [
+          133,
+          9,
+          8
+        ],
+        "parseTimes": [
+          1,
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (POST)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          1591
+        ],
+        "networkTimes": [
+          1591
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      },
+      "/favorites (DELETE)": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0,
+        "durations": [
+          459
+        ],
+        "networkTimes": [
+          459
+        ],
+        "parseTimes": [
+          1
+        ],
+        "retries": 0
+      }
+    },
+    "slowRequests": 1,
+    "failedRequestsList": []
   }
 ]

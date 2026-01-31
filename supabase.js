@@ -43,18 +43,28 @@ if (!supabaseUrl || !supabaseKey) {
     const clientOptions = {
         db: {
             schema: 'public',
-            // 添加连接池设置
+            // 优化连接池设置
             pool: {
-                min: 0,
-                max: 10,
-                idleTimeoutMillis: 60000
+                min: 2, // 最小连接数
+                max: 25, // 最大连接数
+                idleTimeoutMillis: 30000, // 空闲连接超时时间：30秒
+                acquireTimeoutMillis: 5000, // 获取连接的超时时间：5秒
+                createTimeoutMillis: 30000, // 创建连接的超时时间：30秒
+                destroyTimeoutMillis: 5000, // 销毁连接的超时时间：5秒
+                validateTimeoutMillis: 5000 // 验证连接的超时时间：5秒
             }
         },
         global: {
             headers: {
                 'x-my-custom-header': 'timeline-app'
+            },
+            // 添加请求超时设置
+            fetch: (url, options) => {
+                return fetch(url, {
+                    ...options,
+                    signal: AbortSignal.timeout(10000) // 全局请求超时：10秒
+                });
             }
-            // 移除自定义 fetch 实现，避免 Vercel 部署问题
         },
         auth: {
             persistSession: false,
