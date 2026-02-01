@@ -104,5 +104,4 @@ if (require.main === module) {
     });
 }
 
-// Vercel 导出
-module.exports = app;
+// 本地开发服务器，不需要 Vercel 导出
