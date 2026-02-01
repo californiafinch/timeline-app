@@ -248,6 +248,59 @@
     <script src="data/characters.js"></script>
     <!-- 加载主逻辑脚本（优化版） -->
     <script src="timeline-optimized.js"></script>
+    <!-- 访问方式检测脚本：提示用户通过 GitHub Pages 域名访问 -->
+    <script>
+        // 检测当前访问方式
+        window.addEventListener('load', () => {
+            const currentUrl = window.location.href;
+            const isGitHubPages = currentUrl.includes('californiafinch.github.io/timeline-app');
+            
+            // 如果不是通过 GitHub Pages 域名访问，显示提示
+            if (!isGitHubPages) {
+                // 创建提示元素
+                const accessNotice = document.createElement('div');
+                accessNotice.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                    z-index: 9999;
+                    text-align: center;
+                    max-width: 90%;
+                    font-size: 14px;
+                `;
+                accessNotice.innerHTML = `
+                    <p>为了获得最佳体验，请通过 <strong>https://californiafinch.github.io/timeline-app</strong> 访问本应用</p>
+                    <button style="
+                        background-color: white;
+                        color: #4CAF50;
+                        border: none;
+                        padding: 5px 10px;
+                        border-radius: 3px;
+                        cursor: pointer;
+                        margin-top: 10px;
+                        font-size: 12px;
+                    " onclick="this.parentElement.style.display='none'">关闭</button>
+                `;
+                
+                // 添加到页面
+                document.body.appendChild(accessNotice);
+                
+                // 30秒后自动隐藏
+                setTimeout(() => {
+                    if (accessNotice.parentNode) {
+                        accessNotice.style.display = 'none';
+                    }
+                }, 30000);
+            }
+        });
+    </script>
+    
     <!-- Service Worker 注册脚本：实现离线支持 -->
     <script>
         // 检查浏览器是否支持 Service Worker
